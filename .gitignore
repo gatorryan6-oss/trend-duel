@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.pytest_tmp/
+Thumbs.db
+.DS_Store
+
+# Claude Code local noise — but settings.json IS project config (kickoff M0)
+.claude/*
+!.claude/settings.json
