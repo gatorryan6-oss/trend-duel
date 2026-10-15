@@ -18,22 +18,21 @@ Entry format:
 
 ## Current state
 
-- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M3 done.
-  **STOPPED for the M3 review gate**: the teacher reviews
-  docs/data/exceptions.json (32 drafted reasons, all reviewed:false) and
-  flips reviewed:true on the ones he stands behind. M4 (opponents, hotseat,
-  presets panel) is next after his go-ahead.
+- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M4 done;
+  M5 (mastery panel, results string, About page, size/network audit,
+  GitHub Pages) is next. exceptions.json: 32 drafted reasons, 0 flipped to
+  reviewed:true so far — the game shows the generic upset line until the
+  teacher flips them.
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
   The port map was read from every other project's verify.py on disk at M0
   rather than asked — 5093 is the next free after travel app's 5092.
 - **Environment:** global Python 3.13.15 with pytest 9.1.1. `mendeleev` 1.3.0
   is installed in the project `.venv` (tools/requirements.txt); run the
   build with `.venv\Scripts\python.exe toolsuild_elements.py`. Node
-  **v24.16.0** is installed, so JS engine tests will run with
-  `node --test tests/js`; `docs/selftest.html` is the fallback only if Node
-  disappears.
-- **Suite:** `python verify.py` PASSES (index + gallery + both data files
-  parsed). pytest: 24 passed, 0 skipped. `npm test`: 24 tests pass;
+  **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
+  them too). `docs/selftest.html` deferred — only needed if Node disappears.
+- **Suite:** `python verify.py` PASSES (index + gallery + three data files
+  parsed). pytest: 24 passed, 0 skipped. `npm test`: 35 tests pass;
   verify.py runs them and parses all three data files.
 - **Open bugs:** none.
 - **Machine note:** pytest.ini pins `--basetemp=.pytest_tmp` because this
@@ -46,6 +45,31 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-14 — M4: Opponents, hotseat, presets
+- Shipped: docs/js/opponents.js — Trend-reasoner (scores each stat from
+  position with the predictor's rules) and Greedy (ranks the true value
+  against the deck); both honour the direction token. docs/js/settings.js —
+  every toggle (mode, opponent, allow-Greedy, stats, card face, direction
+  token, round cap), CP/Honors as toggle bundles, presetOf() shows "Custom"
+  when edited, saved under localStorage key td1.settings.v1 with a loud
+  fallback to defaults. Hotseat mode with a "Pass to Player N" curtain that
+  drops whenever the picker changes hands. Settings panel on the title
+  screen; keys 1-5 pick, Space/Enter continue or lift the curtain. 35 Node
+  tests (11 new); pytest 24; verify.py PASS. Checkpoint driven in the
+  browser: trend-position play vs Random 1-1; random play vs Greedy lost
+  7-35 and 13-29; Honors switches buttons to mass and the face to econf;
+  hotseat game showed 7 curtains and both players' seats.
+- Deferred: nothing.
+- Open bugs: none.
+- Decisions: (1) Greedy is gated by an allowGreedy toggle (off in CP, on in
+  Honors) rather than hidden, so a CP teacher can still switch it on.
+  (2) The curtain shows only when the picker CHANGES, not every round — the
+  winner usually picks again, and a curtain every round was a tap tax.
+  (3) Opponents pick for whichever seat is active (state.active), so the
+  same code serves Phase 2 if the computer ever plays seat 0.
+  (4) Settings persistence is a browser convenience only; the mastery panel
+  (M5) gets its own versioned key.
 
 ## 2026-10-14 — M3: The reveal explains itself
 - Shipped: docs/js/trend.js — the naive predictor (period + column only) and

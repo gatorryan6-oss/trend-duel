@@ -86,11 +86,17 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   css/                     plain CSS, no images
   js/engine.js             pure game logic (M2)
   js/ui.js                 draws state onto the page (M2)
+  js/trend.js              pure predictor + the reveal's explanation line (M3)
+  js/opponents.js          Random / Trend-reasoner / Greedy, pure (M2, M4)
+  js/settings.js           every toggle, presets, localStorage save/load (M4)
+  js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)
   data/stats.json          stat definitions (M1, generated)
   data/exceptions.json     predictor failures + drafted reasons (M3, generated)
 data/SOURCES.md            dataset + citation per stat, ten hand-checked values (M1)
 tools/build_elements.py    the data build (M1) — the only thing that imports mendeleev
+tools/build_exceptions.mjs computes exceptions.json from the game's own predictor (M3)
+tools/exception_reasons.json  drafted reasons, keyed stat|A|B (M3)
 tools/requirements.txt     tooling deps, version-pinned
 tests/test_invariants.py   kickoff §2/§5 as checks
 tests/js/                  engine unit tests, `npm test` (M2)

@@ -27,15 +27,53 @@
         <span>Radius · Ionization energy · Electronegativity · Atomic mass · direction token on</span>
       </button>
     </div>
-    <p class="hint">Opponent: Random (Trend-reasoner and Greedy arrive at M4).</p>
+
+    <details class="settings">
+      <summary>Settings <span class="preset-pill">Preset: <b id="preset-name">CP</b></span></summary>
+      <form id="settings-form" class="settings-grid">
+        <fieldset>
+          <legend>Play against</legend>
+          <label><input type="radio" name="mode" value="computer"> the computer</label>
+          <label><input type="radio" name="mode" value="hotseat"> a classmate on this screen (hotseat)</label>
+          <label class="row">Opponent
+            <select name="opponent">
+              <option value="random">Random</option>
+              <option value="trend">Trend-reasoner</option>
+              <option value="greedy">Greedy (Honors)</option>
+            </select>
+          </label>
+          <label><input type="checkbox" name="allowGreedy"> Allow the Greedy opponent</label>
+        </fieldset>
+        <fieldset>
+          <legend>Stats on the card</legend>
+          <div id="stat-boxes" class="stack"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Card face shows</legend>
+          <label><input type="radio" name="face" value="valence"> valence electron count</label>
+          <label><input type="radio" name="face" value="econf"> electron configuration</label>
+        </fieldset>
+        <fieldset>
+          <legend>Rounds</legend>
+          <label><input type="checkbox" name="directionToken"> Direction token (highest / lowest wins)</label>
+          <label class="row">Round cap <input type="number" name="roundCap" min="1" max="42"></label>
+        </fieldset>
+        <div class="settings-actions">
+          <button type="button" data-apply-preset="cp">Reset to CP</button>
+          <button type="button" data-apply-preset="honors">Reset to Honors</button>
+          <button type="submit" id="start" class="big">Start with these settings</button>
+          <span id="settings-problem" class="problem" aria-live="polite"></span>
+        </div>
+      </form>
+    </details>
   </section>
 
   <section data-screen="board" class="board" hidden>
     <div class="strip">
-      <span class="score">You <b id="score-me">0</b></span>
+      <span class="score"><span id="seat-me">You</span> <b id="score-me">0</b></span>
       <span id="round" class="round"></span>
       <span id="pot" class="pot"></span>
-      <span class="score"><b id="score-them">0</b> Opponent</span>
+      <span class="score"><b id="score-them">0</b> <span id="seat-them">Opponent</span></span>
     </div>
     <div id="direction" class="direction" hidden></div>
     <div class="table">
@@ -43,23 +81,29 @@
       <div class="controls">
         <div id="whose-turn" class="whose"></div>
         <div id="stat-buttons" class="stat-buttons"></div>
-        <p class="hint small">Keys 1–4 pick a stat.</p>
+        <p id="key-hint" class="hint small"></p>
       </div>
-      <div class="seat"><div class="seat-label">Opponent</div><div id="their-card" class="slot"></div></div>
+      <div class="seat"><div class="seat-label">Their card</div><div id="their-card" class="slot"></div></div>
     </div>
+  </section>
+
+  <section data-screen="curtain" class="curtain" hidden>
+    <h2 id="curtain-title">Pass to Player 2</h2>
+    <p id="curtain-detail"></p>
+    <button type="button" id="curtain-go" class="big">Show my card <kbd>Space</kbd></button>
   </section>
 
   <section data-screen="reveal" class="reveal" hidden>
     <div id="reveal-stat" class="reveal-stat"></div>
     <div class="table">
-      <div class="seat"><div class="seat-label">Your card</div><div id="reveal-me" class="slot"></div></div>
+      <div class="seat"><div class="seat-label" id="reveal-seat-a">You</div><div id="reveal-a" class="slot"></div></div>
       <div class="verdict">
         <div id="reveal-outcome" class="outcome"></div>
         <span id="upset-badge" class="badge" hidden title="The simple trend predicted the other card">Upset — trend broken</span>
         <p id="reveal-line" class="explain"></p>
         <button type="button" id="continue" class="big">Continue <kbd>Space</kbd></button>
       </div>
-      <div class="seat"><div class="seat-label">Opponent</div><div id="reveal-them" class="slot"></div></div>
+      <div class="seat"><div class="seat-label" id="reveal-seat-b">Opponent</div><div id="reveal-b" class="slot"></div></div>
     </div>
   </section>
 
