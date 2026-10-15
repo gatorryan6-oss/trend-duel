@@ -10,7 +10,7 @@
 <header class="site">
   <h1>Trend Duel</h1>
   <span class="sub">A periodic-trends card game</span>
-  <nav><a href="gallery.html">Card gallery</a></nav>
+  <nav><a href="gallery.html">Card gallery</a><a href="about.html">About the data</a></nav>
 </header>
 <main>
 
@@ -66,6 +66,17 @@
         </div>
       </form>
     </details>
+
+    <details class="settings mastery">
+      <summary>My mastery <span class="preset-pill">saved on this device only</span></summary>
+      <p class="hint small">For each stat: how often you chose it and how often that choice won. Counts every game you finish on this browser.</p>
+      <table class="mastery-table">
+        <thead><tr><th>Stat</th><th>Chosen</th><th>Won</th><th>Win rate</th></tr></thead>
+        <tbody id="mastery-body"></tbody>
+      </table>
+      <p id="mastery-totals" class="hint small"></p>
+      <button type="button" id="mastery-reset">Reset my mastery</button>
+    </details>
   </section>
 
   <section data-screen="board" class="board" hidden>
@@ -110,6 +121,14 @@
   <section data-screen="end" class="end" hidden>
     <h2 id="end-headline"></h2>
     <p id="end-detail"></p>
+    <div class="results">
+      <label class="row">First name <input id="player-name" maxlength="24" autocomplete="off" placeholder="for your results line"></label>
+      <label class="row">Results <input id="results-line" readonly></label>
+      <div class="results-actions">
+        <button type="button" id="copy-results">Copy results</button>
+        <span id="copy-status" class="hint small" aria-live="polite"></span>
+      </div>
+    </div>
     <div class="preset-row">
       <button type="button" id="rematch" class="big">Rematch <kbd>Space</kbd></button>
       <button type="button" id="to-title" class="big secondary">Change deck</button>

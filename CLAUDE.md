@@ -89,6 +89,9 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   js/trend.js              pure predictor + the reveal's explanation line (M3)
   js/opponents.js          Random / Trend-reasoner / Greedy, pure (M2, M4)
   js/settings.js           every toggle, presets, localStorage save/load (M4)
+  js/mastery.js            per-stat tally, localStorage td1.mastery.v1 (M5)
+  js/results.js            the FROZEN TD1 results string + parser (M5)
+  about.html  gallery.html  sources/standards page; the deck gallery
   js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)
   data/stats.json          stat definitions (M1, generated)

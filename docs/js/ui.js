@@ -9,12 +9,17 @@ import { OPPONENTS } from "./opponents.js";
 import { explain } from "./trend.js";
 import { PRESETS, ALL_STATS, applyPreset, presetOf, validate, toConfig, load, save }
   from "./settings.js";
+import { resultsString, localDate, cleanName } from "./results.js";
+import * as Mastery from "./mastery.js";
 
 const OPPONENT_DELAY_MS = 650;
+const NAME_KEY = "td1.name.v1";     // the self-entered first name, remembered
 
 let data = null;          // { elements, stats, exceptions }
 let game = null;          // the engine state
 let settings = null;      // the toggles (see settings.js)
+let gameTally = null;     // this game's rounds/wins per stat (seat 0)
+let mastery = null;       // the all-time tally from localStorage
 let viewer = 0;           // whose hand the board shows: 0 vs computer; the picker in hotseat
 let lastPicker = null;    // hotseat: who picked last round, to know when to drop the curtain
 let opponentRng = makeRng(Date.now() >>> 0);
@@ -110,9 +115,31 @@ function startGame() {
   const problem = validate(settings);
   if (problem) { $("settings-problem").textContent = problem; return; }
   game = newGame(data.elements, data.stats, toConfig(settings), Date.now() >>> 0);
+  gameTally = Mastery.emptyTally();
   viewer = 0;
   lastPicker = null;
   renderBoard();
+}
+
+// ---------- mastery panel ----------
+function renderMastery() {
+  const body = $("mastery-body");
+  body.replaceChildren();
+  for (const stat of data.stats) {
+    const t = mastery.byStat[stat.key] || { chosen: 0, won: 0 };
+    const pct = t.chosen ? Math.round(100 * t.won / t.chosen) + "%" : "—";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${stat.label}</td><td>${t.chosen}</td><td>${t.won}</td><td>${pct}</td>`;
+    body.appendChild(tr);
+  }
+  $("mastery-totals").textContent =
+    `${mastery.games} games · ${mastery.rounds} rounds · ${mastery.won} won · ` +
+    `${mastery.lost} lost · ${mastery.upsets} upsets seen`;
+}
+
+function resetMastery() {
+  mastery = Mastery.reset(globalThis.localStorage);
+  renderMastery();
 }
 
 // ---------- the board ----------
@@ -226,6 +253,7 @@ function renderReveal() {
   // The one explanation line (kickoff §2): trend right, trends conflict,
   // or an upset. Only reviewed exception reasons ever reach the screen.
   const why = explain(r, stat, data.exceptions);
+  gameTally = Mastery.recordReveal(gameTally, r, why.upset, 0);
   $("reveal-line").textContent = why.line;
   $("reveal-line").dataset.case = why.case;
   $("upset-badge").hidden = !why.upset;
@@ -251,8 +279,53 @@ function renderEnd() {
   $("end-headline").textContent = headline;
   $("end-detail").textContent =
     `${nameOf(0)} ${a} cards, ${nameOf(1)} ${b} cards after ${game.round - 1} rounds (${game.endReason}).`;
+  // Fold this game into the all-time tally and offer the results string.
+  gameTally = Mastery.recordGameEnd(gameTally);
+  mastery = Mastery.merge(mastery, gameTally);
+  Mastery.save(mastery, globalThis.localStorage);
+  renderMastery();
+  renderResults();
   show("end");
   $("rematch").focus();
+}
+
+// ---------- results string (kickoff §5, frozen) ----------
+function rememberedName() {
+  try { return globalThis.localStorage?.getItem(NAME_KEY) || ""; } catch { return ""; }
+}
+
+function renderResults() {
+  const name = $("player-name").value || rememberedName();
+  $("player-name").value = name;
+  const line = resultsString({
+    name,
+    date: localDate(),
+    preset: presetOf(settings),
+    tally: gameTally,
+    stats: game.config.statKeys.map(statByKey),
+  });
+  $("results-line").value = line;
+  $("copy-status").textContent = "";
+}
+
+function onNameInput() {
+  try { globalThis.localStorage?.setItem(NAME_KEY, cleanName($("player-name").value)); } catch { /* fine */ }
+  if (game && game.phase === "over") renderResults();
+}
+
+async function copyResults() {
+  const field = $("results-line");
+  const status = $("copy-status");
+  try {
+    await navigator.clipboard.writeText(field.value);
+    status.textContent = "Copied — paste it into the Google Classroom question.";
+  } catch {
+    // No clipboard permission (older browser, or a non-secure page): select
+    // the text so Ctrl+C works, and say so.
+    field.focus();
+    field.select();
+    status.textContent = "Press Ctrl+C to copy the selected line.";
+  }
 }
 
 // ---------- keyboard ----------
@@ -282,8 +355,13 @@ async function main() {
     return;
   }
   settings = load(globalThis.localStorage);
+  mastery = Mastery.load(globalThis.localStorage);
   buildStatBoxes();
   fillForm();
+  renderMastery();
+  $("mastery-reset").addEventListener("click", resetMastery);
+  $("copy-results").addEventListener("click", copyResults);
+  $("player-name").addEventListener("input", onNameInput);
   for (const btn of document.querySelectorAll("[data-preset]")) {
     btn.addEventListener("click", () => { choosePreset(btn.dataset.preset); startGame(); });
   }

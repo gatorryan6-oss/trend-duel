@@ -53,20 +53,22 @@ NOBLE_GASES = {"He", "Ne", "Ar", "Kr", "Xe", "Rn"}
 
 # Stat definitions (kickoff §5). Adding a stat = one record here + one line
 # in card_record(). `decimals` is how the card displays it.
+# `short` is the stat's name inside the results string (kickoff §5, frozen:
+# radius, ie1, en, mass) — the Phase 2 teacher page parses exactly these.
 STATS = [
-    {"key": "radius_pm", "label": "Atomic radius", "unit": "pm", "decimals": 0,
-     "down": "+", "across": "-",
+    {"key": "radius_pm", "short": "radius", "label": "Atomic radius", "unit": "pm",
+     "decimals": 0, "down": "+", "across": "-",
      "undefined_note": "Noble-gas radii are measured on a different basis "
                        "and are not comparable."},
-    {"key": "ie1_kjmol", "label": "Ionization energy", "unit": "kJ/mol",
+    {"key": "ie1_kjmol", "short": "ie1", "label": "Ionization energy", "unit": "kJ/mol",
      "decimals": 1, "down": "-", "across": "+"},
-    {"key": "en_pauling", "label": "Electronegativity", "unit": "",
+    {"key": "en_pauling", "short": "en", "label": "Electronegativity", "unit": "",
      "decimals": 2, "down": "-", "across": "+",
      "undefined_note": "Most noble gases form no ordinary bonds, so the "
                        "Pauling scale assigns them no value."},
-    {"key": "mass", "label": "Atomic mass", "unit": "u", "decimals": 2,
+    {"key": "mass", "short": "mass", "label": "Atomic mass", "unit": "u", "decimals": 2,
      "by_z": True},
-    {"key": "valence_e", "label": "Valence electrons", "unit": "",
+    {"key": "valence_e", "short": "valence", "label": "Valence electrons", "unit": "",
      "decimals": 0, "by_column": True},
 ]
 

@@ -398,9 +398,14 @@ def test_stats_json_shape(stats):
     assert len(keys) == len(set(keys)), "stats.json has duplicate keys."
     assert set(keys) == STAT_KEYS, (
         f"stats.json keys {sorted(keys)} != locked Phase 1 keys {sorted(STAT_KEYS)}")
+    shorts = [s.get("short") for s in stats]
+    assert len(shorts) == len(set(shorts)), "stats.json short names must be unique."
     for s in stats:
-        for f in ("key", "label", "unit", "decimals"):
+        for f in ("key", "short", "label", "unit", "decimals"):
             assert f in s, f"stats.json {s.get('key')}: missing {f}"
+        assert re.fullmatch(r"[a-z0-9]+", s["short"]), (
+            f"stats.json {s['key']}: short name {s['short']!r} must be lowercase "
+            "letters/digits — it goes inside the frozen results string.")
         directional = {"down", "across"} <= set(s)
         assert directional or s.get("by_z") or s.get("by_column"), (
             f"stats.json {s['key']}: needs down/across, or by_z, or by_column")

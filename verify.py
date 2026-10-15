@@ -73,6 +73,7 @@ DATA_REQUIRED = True                           # M1+: the build has run, so a mi
                                                # data file FAILS (it was a NOTE at M0).
 EXTRA_PAGES = [                                # (path, must-contain) — more pages to smoke-test
     ("/gallery.html", "Card gallery"),         # the deck gallery (M1)
+    ("/about.html", "About the data"),         # sources and standards (M5)
 ]
 STARTUP_TIMEOUT_SECONDS = 15                   # http.server binds in well under a second
 JS_TESTS = "tests/js/**/*.test.js"             # engine unit tests, run with Node (M2)

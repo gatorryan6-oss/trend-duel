@@ -18,9 +18,9 @@ Entry format:
 
 ## Current state
 
-- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M4 done;
-  M5 (mastery panel, results string, About page, size/network audit,
-  GitHub Pages) is next. exceptions.json: 32 drafted reasons, 0 flipped to
+- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M5 built;
+  M5's last step (push to GitHub, enable Pages on docs/, Chromebook test)
+  needs the repo to exist — see the M5 entry. exceptions.json: 32 drafted reasons, 0 flipped to
   reviewed:true so far — the game shows the generic upset line until the
   teacher flips them.
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
@@ -28,12 +28,13 @@ Entry format:
   rather than asked — 5093 is the next free after travel app's 5092.
 - **Environment:** global Python 3.13.15 with pytest 9.1.1. `mendeleev` 1.3.0
   is installed in the project `.venv` (tools/requirements.txt); run the
-  build with `.venv\Scripts\python.exe toolsuild_elements.py`. Node
+  build with `.venv\Scripts\python.exe tools/build_elements.py`. Node
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 24 passed, 0 skipped. `npm test`: 35 tests pass;
-  verify.py runs them and parses all three data files.
+  parsed). pytest: 24 passed, 0 skipped. `npm test`: 43 tests pass;
+  verify.py runs them, parses all three data files, and smoke-tests
+  gallery.html and about.html.
 - **Open bugs:** none.
 - **Machine note:** pytest.ini pins `--basetemp=.pytest_tmp` because this
   machine's system temp has an ACL-broken `pytest-of-gator` directory that
@@ -45,6 +46,31 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-15 — M5: Mastery, results string, About page, audits
+- Shipped: docs/js/mastery.js — per-stat chosen/won tally for seat 0, all-time
+  copy saved under localStorage key td1.mastery.v1 with a Reset button on the
+  title screen. docs/js/results.js — the FROZEN TD1 results string plus
+  parseResults() for the Phase 2 teacher page; stats.json records now carry
+  `short` (radius, ie1, en, mass, valence) and an invariant pins them to
+  [a-z0-9]+. End screen: first-name field (remembered under td1.name.v1),
+  the results line, Copy with a select-and-Ctrl+C fallback. docs/about.html:
+  datasets + citations, why textbooks differ, undefined cells, how the
+  reveal decides, privacy, and HS-PS1-1 quoted from the 2016 MA STE
+  framework (text extracted from the DESE PDF, framework p. 85). Audits:
+  size (76 KB of 300) and zero external references are invariants; the
+  browser network log for a full game showed only localhost requests.
+  43 Node tests; pytest 24; verify.py PASS (index, gallery, about, 3 data
+  files). Sample line produced in the browser:
+  TD1|Ryan|2026-10-15|honors|rounds=20|won=7|lost=13|upsets=1|radius=1/2,ie1=3/3,en=0/2,mass=0/1
+- Deferred: GitHub push + Pages — see below.
+- Open bugs: none.
+- Decisions: (1) rounds counts every resolved round incl. ties; won/lost
+  exclude ties, so won+lost <= rounds. (2) Mastery tracks seat 0 only (the
+  student at the keyboard; Player 1 in hotseat). (3) `preset` in the
+  results string is cp / honors / custom via presetOf(). (4) The GitHub CLI
+  is not installed and no token is in the environment; git uses the
+  credential manager, so a push works once the repo exists.
 
 ## 2026-10-14 — M4.1: hidden screens stay hidden
 - Shipped: `[hidden] { display: none !important }` in style.css. The curtain

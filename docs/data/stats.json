@@ -1,6 +1,7 @@
 [
  {
   "key": "radius_pm",
+  "short": "radius",
   "label": "Atomic radius",
   "unit": "pm",
   "decimals": 0,
@@ -10,6 +11,7 @@
  },
  {
   "key": "ie1_kjmol",
+  "short": "ie1",
   "label": "Ionization energy",
   "unit": "kJ/mol",
   "decimals": 1,
@@ -18,6 +20,7 @@
  },
  {
   "key": "en_pauling",
+  "short": "en",
   "label": "Electronegativity",
   "unit": "",
   "decimals": 2,
@@ -27,6 +30,7 @@
  },
  {
   "key": "mass",
+  "short": "mass",
   "label": "Atomic mass",
   "unit": "u",
   "decimals": 2,
@@ -34,6 +38,7 @@
  },
  {
   "key": "valence_e",
+  "short": "valence",
   "label": "Valence electrons",
   "unit": "",
   "decimals": 0,
