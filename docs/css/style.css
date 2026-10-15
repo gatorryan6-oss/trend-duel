@@ -15,6 +15,10 @@
 
 * { box-sizing: border-box; }
 
+/* Screens are switched with the `hidden` attribute. An author display rule
+   (like .curtain's flex) would otherwise beat the browser's display:none. */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   background: var(--felt);

@@ -46,6 +46,17 @@ Entry format:
 
 ## Milestones
 
+## 2026-10-14 — M4.1: hidden screens stay hidden
+- Shipped: `[hidden] { display: none !important }` in style.css. The curtain
+  screen's `display: flex` was beating the browser's `hidden` rule, so the
+  "Pass to Player 2" block sat under the title screen. Found by reading the
+  page TEXT (get_page_text) rather than a screenshot — hidden sections
+  contribute no text, so the leak was visible there.
+- Deferred: nothing.
+- Open bugs: none.
+- Decisions: every screen is switched by the `hidden` attribute only; no
+  author CSS may set display on a [data-screen] section without that guard.
+
 ## 2026-10-14 — M4: Opponents, hotseat, presets
 - Shipped: docs/js/opponents.js — Trend-reasoner (scores each stat from
   position with the predictor's rules) and Greedy (ranks the true value
