@@ -28,6 +28,7 @@ pages and no other project's — never leave it empty. Stdlib only, no installs.
 """
 
 import argparse
+import glob
 import json
 import os
 import subprocess
@@ -73,7 +74,36 @@ EXTRA_PAGES = [                                # (path, must-contain) — more p
     ("/gallery.html", "Card gallery"),         # the deck gallery (M1)
 ]
 STARTUP_TIMEOUT_SECONDS = 15                   # http.server binds in well under a second
+JS_TESTS = "tests/js/**/*.test.js"             # engine unit tests, run with Node (M2)
 # ------------------------------------------------------------
+
+
+def run_js_tests():
+    """Run the engine's unit tests with Node's built-in runner. Returns a
+    list of problems (empty = pass). No Node on this machine is a problem
+    too: the engine would be unverified, which is not the same as fine."""
+    import shutil
+    node = shutil.which("node")
+    if node is None:
+        return ["Node is not installed, so the engine tests in tests/js "
+                "cannot run. Install Node, or build docs/selftest.html "
+                "(the kickoff's browser fallback) and open it by hand."]
+    try:
+        out = subprocess.run([node, "--test", JS_TESTS], cwd=_HERE,
+                             capture_output=True, text=True, timeout=120)
+    except subprocess.TimeoutExpired:
+        return ["node --test did not finish within 120 s."]
+    if out.returncode != 0:
+        tail = (out.stdout + out.stderr).strip().splitlines()[-25:]
+        return ["engine tests FAILED (node --test):" + chr(10) + chr(10).join(tail)]
+    import re
+    counts = {k: m.group(1) for k in ("tests", "pass", "fail")
+              if (m := re.search(rf"\b{k} (\d+)\b", out.stdout))}
+    if counts.get("tests", "0") == "0":
+        return ["node --test ran but reported 0 tests - the test files were "
+                "not picked up (pattern " + JS_TESTS + ")."]
+    print("node --test: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
+    return []
 
 
 def server_output(log, limit=2000):
@@ -217,6 +247,8 @@ def main(argv=None):
                 problems.append(f"{path} is missing expected text: {needle!r}")
         for note in notes:
             print(note)
+        if glob.glob(os.path.join(_HERE, JS_TESTS), recursive=True):
+            problems.extend(run_js_tests())
         if problems:
             print("FAIL: " + " | ".join(problems), file=sys.stderr)
             return 2

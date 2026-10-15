@@ -1,0 +1,9 @@
+{
+  "name": "trend-duel",
+  "private": true,
+  "type": "module",
+  "description": "Tooling marker only: lets Node load docs/js/*.js as ES modules for `node --test tests/js`. The site has no build step and no dependencies.",
+  "scripts": {
+    "test": "node --test tests/js"
+  }
+}

@@ -39,6 +39,15 @@ export function formatValue(stat, value) {
   return Number(value).toFixed(stat.decimals) + (stat.unit ? " " + stat.unit : "");
 }
 
+// The face-down card: the opponent's unflipped top card on the board.
+export function renderCardBack() {
+  const card = document.createElement("article");
+  card.className = "card back";
+  card.setAttribute("aria-label", "Face-down card");
+  card.innerHTML = `<div class="back-mark">Trend<br>Duel</div>`;
+  return card;
+}
+
 // Render a card. `stats` is the list from stats.json; `statKeys` picks which
 // rows to show (a preset's stats) and in what order. `revealed` shows values.
 // `face` is "valence" (CP) or "econf" (Honors) — the one extra line under the

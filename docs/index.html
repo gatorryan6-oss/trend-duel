@@ -13,7 +13,65 @@
   <nav><a href="gallery.html">Card gallery</a></nav>
 </header>
 <main>
-  <p class="hint">The game itself lands at M2. For now, browse the deck in the <a href="gallery.html">card gallery</a>.</p>
+
+  <section data-screen="title" class="title" hidden>
+    <h2>Pick a deck</h2>
+    <p class="hint">Each round, pick the property you think your element wins on. The numbers stay hidden until the reveal, so reason from where the element sits on the table.</p>
+    <div class="preset-row">
+      <button type="button" class="preset" data-preset="cp" aria-label="Play the CP deck">
+        <strong>CP</strong>
+        <span>Radius · Ionization energy · Electronegativity · Valence electrons</span>
+      </button>
+      <button type="button" class="preset" data-preset="honors" aria-label="Play the Honors deck">
+        <strong>Honors</strong>
+        <span>Radius · Ionization energy · Electronegativity · Atomic mass · direction token on</span>
+      </button>
+    </div>
+    <p class="hint">Opponent: Random (Trend-reasoner and Greedy arrive at M4).</p>
+  </section>
+
+  <section data-screen="board" class="board" hidden>
+    <div class="strip">
+      <span class="score">You <b id="score-me">0</b></span>
+      <span id="round" class="round"></span>
+      <span id="pot" class="pot"></span>
+      <span class="score"><b id="score-them">0</b> Opponent</span>
+    </div>
+    <div id="direction" class="direction" hidden></div>
+    <div class="table">
+      <div class="seat"><div class="seat-label">Your card</div><div id="my-card" class="slot"></div></div>
+      <div class="controls">
+        <div id="whose-turn" class="whose"></div>
+        <div id="stat-buttons" class="stat-buttons"></div>
+        <p class="hint small">Keys 1–4 pick a stat.</p>
+      </div>
+      <div class="seat"><div class="seat-label">Opponent</div><div id="their-card" class="slot"></div></div>
+    </div>
+  </section>
+
+  <section data-screen="reveal" class="reveal" hidden>
+    <div id="reveal-stat" class="reveal-stat"></div>
+    <div class="table">
+      <div class="seat"><div class="seat-label">Your card</div><div id="reveal-me" class="slot"></div></div>
+      <div class="verdict">
+        <div id="reveal-outcome" class="outcome"></div>
+        <p id="reveal-line" class="explain"></p>
+        <button type="button" id="continue" class="big">Continue <kbd>Space</kbd></button>
+      </div>
+      <div class="seat"><div class="seat-label">Opponent</div><div id="reveal-them" class="slot"></div></div>
+    </div>
+  </section>
+
+  <section data-screen="end" class="end" hidden>
+    <h2 id="end-headline"></h2>
+    <p id="end-detail"></p>
+    <div class="preset-row">
+      <button type="button" id="rematch" class="big">Rematch <kbd>Space</kbd></button>
+      <button type="button" id="to-title" class="big secondary">Change deck</button>
+    </div>
+  </section>
+
 </main>
+<script type="module" src="js/ui.js"></script>
 </body>
 </html>

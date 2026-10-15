@@ -25,7 +25,8 @@ Then it must load and play on a school Chromebook from a plain URL. Then fun.
    milestone complete: run `python verify.py` (smoke test) and
    `python -m pytest tests/test_invariants.py -q` (data + architecture
    checks). Both must pass on THIS machine — "the code looks right" doesn't
-   count. From M2, `node --test tests/js` must pass too.
+   count. From M2, `npm test` (= `node --test "tests/js/**/*.test.js"`) must pass too;
+   verify.py runs it for you.
 2. **Append to `BUILDLOG.md` at the end of every milestone.** Entry format is
    in that file's header. Log deferrals and open bugs there the moment they
    appear — that is how they survive to the next session.
@@ -92,7 +93,8 @@ data/SOURCES.md            dataset + citation per stat, ten hand-checked values 
 tools/build_elements.py    the data build (M1) — the only thing that imports mendeleev
 tools/requirements.txt     tooling deps, version-pinned
 tests/test_invariants.py   kickoff §2/§5 as checks
-tests/js/                  engine unit tests, `node --test tests/js` (M2)
+tests/js/                  engine unit tests, `npm test` (M2)
+package.json               tooling marker only: type=module so Node loads docs/js
 verify.py                  smoke test against the served site
 run.bat                    one double-click: serve docs/ on port 5093
 open_when_ready.py         launcher helper: opens the browser once the port answers
@@ -109,8 +111,10 @@ trend_duel_v1_kickoff.md   the spec
   running server is reused as-is (a static server serves disk live).
 - `python -m pytest tests/test_invariants.py -q` — data and architecture
   checks. Tests whose inputs don't exist yet SKIP naming the milestone.
-- `node --test tests/js` — engine unit tests (M2+). Node v24.16.0 is on this
-  machine; `docs/selftest.html` is the fallback if it ever isn't.
+- `npm test` — engine unit tests in Node's built-in runner (M2+); verify.py
+  runs the same command and FAILS on a red test. Node v24.16.0 is on this
+  machine. (Node refuses a bare directory, so the glob form is the one that
+  works.) If Node ever disappears, verify.py says so by name.
 - `python tools/build_elements.py` — regenerate the data (needs
   `pip install -r tools/requirements.txt`).
 

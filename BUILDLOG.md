@@ -18,8 +18,8 @@ Entry format:
 
 ## Current state
 
-- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0 and M1 done;
-  M2 (duel against Random) is next.
+- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M2 done;
+  M3 (the reveal explains itself) is next.
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
   The port map was read from every other project's verify.py on disk at M0
   rather than asked — 5093 is the next free after travel app's 5092.
@@ -30,8 +30,8 @@ Entry format:
   `node --test tests/js`; `docs/selftest.html` is the fallback only if Node
   disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + both data files
-  parsed). pytest: 21 passed, 2 skipped (engine purity arms at M2,
-  exceptions.json at M3).
+  parsed). pytest: 22 passed, 1 skipped (exceptions.json arms at
+  M3). `npm test`: 14 engine tests pass; verify.py runs them.
 - **Open bugs:** none.
 - **Machine note:** pytest.ini pins `--basetemp=.pytest_tmp` because this
   machine's system temp has an ACL-broken `pytest-of-gator` directory that
@@ -43,6 +43,25 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-14 — M2: Duel against Random
+- Shipped: docs/js/engine.js — pure rules (seeded shuffle, even deal, playable
+  stats, resolve with undefined-loses, pot on ties, winner picks next, round
+  cap, end state); docs/js/opponents.js (Random); docs/js/ui.js draws title
+  / board / reveal / end screens and reuses cards.js. CP and Honors presets
+  as toggle bundles (stat set, card face, direction token, accent). Keys 1-4
+  pick, Space continues. 14 engine tests in tests/js/engine.test.js; verify.py
+  now runs them and FAILS on red. Two full games driven end to end in the
+  browser (CP: 25-17 at the cap; Honors: both directions seen, econf face).
+- Deferred: docs/selftest.html (browser fallback for the JS tests) — Node
+  v24 is on this machine, so the kickoff's "if Node is not there" branch is
+  not needed; verify.py names the gap if Node disappears.
+- Open bugs: none.
+- Decisions: `node --test tests/js` (bare directory) is refused by Node 24;
+  the working form is `node --test "tests/js/**/*.test.js"` (= `npm test`).
+  package.json exists ONLY to set type=module for Node; the site has no
+  build. Human is always player 0 and picks first. Ties keep the picker.
+  Reveal line at M2 is a plain data line; M3 replaces it with the predictor.
 
 ## 2026-10-14 — M1: Data build and card gallery
 - Shipped: tools/build_elements.py generates docs/data/elements.json (42
