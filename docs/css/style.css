@@ -240,6 +240,20 @@ button kbd {
 .hint.small { font-size: .85rem; }
 
 .reveal-stat { font-weight: 600; margin-bottom: .5rem; }
+.badge {
+  align-self: flex-start;
+  background: #fff1cc;
+  color: #7a4b00;
+  border: 1px solid #e8c15a;
+  border-radius: 999px;
+  padding: .15rem .7rem;
+  font-weight: 700;
+  font-size: .9rem;
+  letter-spacing: .02em;
+}
+.card.upset { box-shadow: 0 0 0 3px #e8c15a, 0 6px 18px rgba(0,0,0,.08); }
+.explain[data-case="conflict"] { border-left: 3px solid var(--line); padding-left: .6rem; }
+.explain[data-case="upset"] { border-left: 3px solid #e8c15a; padding-left: .6rem; }
 .outcome { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
 .explain { margin: 0; font-size: 1.05rem; }
 

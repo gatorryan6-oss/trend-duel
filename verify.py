@@ -67,6 +67,7 @@ MUST_CONTAIN = [                               # strings that must appear in the
 DATA_FILES = [                                 # JSON the game loads; each must fetch 200
     "/data/elements.json",                     # and parse as non-empty JSON (M1)
     "/data/stats.json",                        # (M1)
+    "/data/exceptions.json",                   # predictor failures + reasons (M3)
 ]
 DATA_REQUIRED = True                           # M1+: the build has run, so a missing
                                                # data file FAILS (it was a NOTE at M0).

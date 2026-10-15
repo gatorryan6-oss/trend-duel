@@ -3,9 +3,10 @@
 // a view function in a web app reads a model and never changes it directly.
 import { newGame, chooseStat, continueGame, playableStats, score, topCard, makeRng }
   from "./engine.js";
-import { renderCard, renderCardBack, formatValue } from "./cards.js";
+import { renderCard, renderCardBack } from "./cards.js";
 import { loadData } from "./data.js";
 import { OPPONENTS } from "./opponents.js";
+import { explain } from "./trend.js";
 
 // Presets are saved combinations of toggles (kickoff §2). The settings
 // panel with every toggle exposed lands at M4.
@@ -154,23 +155,18 @@ function renderReveal() {
   $("reveal-stat").textContent = `${chooser} chose ${stat.label}` +
     (game.config.directionToken ? ` — ${r.direction === "high" ? "highest" : "lowest"} wins` : "");
 
-  let outcome, line;
-  if (r.winner === null) {
-    outcome = "Tie — both cards go to the pot.";
-    line = `${r.a.symbol} and ${r.b.symbol} both have ${formatValue(stat, r.a[r.stat])}.`;
-  } else {
-    const w = r.winner === HUMAN ? r.a : r.b;
-    const l = r.winner === HUMAN ? r.b : r.a;
-    outcome = r.winner === HUMAN ? "You take the round." : "Opponent takes the round.";
-    if (r.undefinedLoser !== null) {
-      line = `${l.symbol} has no comparable ${stat.label.toLowerCase()}. ` +
-             (stat.undefined_note || "");
-    } else {
-      line = `${w.symbol} ${formatValue(stat, w[r.stat])} vs ${l.symbol} ${formatValue(stat, l[r.stat])}.`;
-    }
-  }
+  let outcome;
+  if (r.winner === null) outcome = "Tie — both cards go to the pot.";
+  else outcome = r.winner === HUMAN ? "You take the round." : "Opponent takes the round.";
   $("reveal-outcome").textContent = outcome;
-  $("reveal-line").textContent = line;   // M3 replaces this with the trend explanation
+
+  // The one explanation line (kickoff §2): trend right, trends conflict,
+  // or an upset. Only reviewed exception reasons ever reach the screen.
+  const why = explain(r, stat, data.exceptions);
+  $("reveal-line").textContent = why.line;
+  $("reveal-line").dataset.case = why.case;
+  $("upset-badge").hidden = !why.upset;
+  for (const card of [mine, theirs]) card.classList.toggle("upset", why.upset);
   show("reveal");
   $("continue").focus();
 }

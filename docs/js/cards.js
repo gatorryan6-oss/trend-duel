@@ -1,6 +1,7 @@
 // cards.js — draws one element card as HTML. Shared by the gallery (M1) and
 // the game board (M2+). This file is PAGE code: it may touch document.
 // The rules of the game live in engine.js, which never imports this.
+import { formatValue } from "./format.js";
 
 // Which cells of the mini periodic table exist, by period. Main-group
 // columns are IUPAC groups 1, 2, 13–18; the d-block is groups 3–12 in
@@ -32,12 +33,8 @@ export function miniTable(element) {
   return grid;
 }
 
-// Format one stat value the way the card shows it. null is "undefined",
-// never 0 and never blank — the kickoff's rule.
-export function formatValue(stat, value) {
-  if (value === null || value === undefined) return "undefined";
-  return Number(value).toFixed(stat.decimals) + (stat.unit ? " " + stat.unit : "");
-}
+// formatValue lives in format.js (pure) so the trend explainer can share it.
+export { formatValue };
 
 // The face-down card: the opponent's unflipped top card on the board.
 export function renderCardBack() {

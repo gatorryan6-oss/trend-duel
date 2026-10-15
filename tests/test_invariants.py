@@ -458,3 +458,22 @@ def test_exceptions_file_validates(elements, stats):
         assert x["predicted"] != x["actual"], f"{where}: not an exception if predicted == actual"
         assert isinstance(x["reviewed"], bool), f"{where}: reviewed must be true/false"
         assert isinstance(x["reason"], str) and x["reason"].strip(), f"{where}: empty reason"
+        if x["reviewed"]:
+            assert "(no reason drafted" not in x["reason"], (
+                f"{where}: a placeholder reason cannot be marked reviewed")
+
+
+def test_exceptions_file_matches_the_predictor():
+    """exceptions.json is COMPUTED by running the game's own predictor over
+    the deck. A stale file would show students explanations for pairs that
+    are no longer upsets, or miss new ones. The build script's --check mode
+    recomputes and compares byte-for-byte."""
+    import shutil
+    import subprocess
+    require(EXCEPTIONS_FILE, "M3", "The exceptions list")
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node is not installed; cannot re-run the predictor.")
+    out = subprocess.run([node, str(ROOT / "tools" / "build_exceptions.mjs"), "--check"],
+                         capture_output=True, text=True, timeout=60)
+    assert out.returncode == 0, out.stderr or out.stdout

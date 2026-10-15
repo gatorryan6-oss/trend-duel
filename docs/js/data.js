@@ -11,10 +11,12 @@ async function fetchJson(path) {
 }
 
 export async function loadData() {
-  const [elements, stats] = await Promise.all([
+  const [elements, stats, exceptions] = await Promise.all([
     fetchJson("data/elements.json"),
     fetchJson("data/stats.json"),
+    fetchJson("data/exceptions.json"),
   ]);
+  if (!Array.isArray(exceptions)) throw new Error("exceptions.json is not a list.");
   if (!Array.isArray(elements) || elements.length !== DECK_SIZE) {
     throw new Error(`elements.json should hold ${DECK_SIZE} cards; got ${elements?.length}.`);
   }
@@ -29,5 +31,5 @@ export async function loadData() {
   }
   // Deal order is by atomic number so the gallery reads like the table.
   elements.sort((a, b) => a.z - b.z);
-  return { elements, stats };
+  return { elements, stats, exceptions };
 }

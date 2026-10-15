@@ -1,0 +1,290 @@
+[
+ {
+  "stat": "radius_pm",
+  "a": "As",
+  "b": "Se",
+  "predicted": "As",
+  "actual": "Se",
+  "reason": "The Cordero radii of As (119 pm) and Se (120 pm) differ by 1 pm, inside the dataset's own uncertainty: by group 15-16 of period 4 the across-period contraction has flattened because the filled 3d shell shields the added nuclear charge poorly.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "As",
+  "b": "Br",
+  "predicted": "As",
+  "actual": "Br",
+  "reason": "As (119 pm) and Br (120 pm) are 1 pm apart, within the Cordero uncertainty: the period-4 p-block radii level off after the 3d shell fills, so the across-period shrink is essentially gone by bromine.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Te",
+  "b": "I",
+  "predicted": "Te",
+  "actual": "I",
+  "reason": "Te (138 pm) and I (139 pm) differ by 1 pm, inside the dataset's uncertainty: the across-period contraction has flattened by the end of period 5 as the 4d shell shields poorly and the bonds measured are to larger partners.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Tl",
+  "b": "Pb",
+  "predicted": "Tl",
+  "actual": "Pb",
+  "reason": "Tl (145 pm) and Pb (146 pm) are 1 pm apart: in the period-6 p-block the across-period shrink is cancelled by the inert-pair 6s contraction and poor 4f/5d shielding, leaving the radii nearly flat.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Tl",
+  "b": "Bi",
+  "predicted": "Tl",
+  "actual": "Bi",
+  "reason": "Period-6 p-block radii are nearly flat (Tl 145, Pb 146, Bi 148 pm) because relativistic 6s contraction and poor 4f/5d shielding offset the usual across-period decrease, and Bi's three 6p electrons sit in the slightly larger 6p3/2 level.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Tl",
+  "b": "At",
+  "predicted": "Tl",
+  "actual": "At",
+  "reason": "Astatine's Cordero radius (150 pm) is an estimate from very few structures, and the period-6 p-block radii are nearly flat anyway, so the across-period shrink from Tl (145 pm) does not show in this dataset.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Pb",
+  "b": "Bi",
+  "predicted": "Pb",
+  "actual": "Bi",
+  "reason": "Pb (146 pm) and Bi (148 pm) are 2 pm apart in a period whose p-block radii barely change: the inert-pair 6s contraction and poor 4f/5d shielding cancel the usual across-period decrease.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Pb",
+  "b": "At",
+  "predicted": "Pb",
+  "actual": "At",
+  "reason": "Astatine's Cordero radius (150 pm) rests on very few structures and comes out larger than lead's (146 pm); the period-6 p-block radii are nearly flat, so a small data artifact is enough to flip the order.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Bi",
+  "b": "At",
+  "predicted": "Bi",
+  "actual": "At",
+  "reason": "Astatine's 150 pm Cordero value is an estimate from scarce structural data and exceeds bismuth's 148 pm; across the flat period-6 p-block that 2 pm difference is within the method's uncertainty.",
+  "reviewed": false
+ },
+ {
+  "stat": "radius_pm",
+  "a": "Po",
+  "b": "At",
+  "predicted": "Po",
+  "actual": "At",
+  "reason": "Polonium's Cordero radius (140 pm) comes from few structures and astatine's (150 pm) from fewer still; the 10 pm jump is a data artifact of a sparsely measured corner of the table, not a trend.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Be",
+  "b": "B",
+  "predicted": "B",
+  "actual": "Be",
+  "reason": "Boron's outermost electron is in 2p, higher in energy and better shielded than beryllium's paired 2s electrons, so it is easier to remove despite the extra proton.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "N",
+  "b": "O",
+  "predicted": "O",
+  "actual": "N",
+  "reason": "Oxygen's fourth 2p electron must pair up in an already occupied orbital, and that pairing repulsion makes it easier to remove than one of nitrogen's three unpaired, half-filled 2p electrons.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Mg",
+  "b": "Al",
+  "predicted": "Al",
+  "actual": "Mg",
+  "reason": "Aluminum's outermost electron is in 3p, higher in energy and better shielded than magnesium's paired 3s electrons, so it is easier to remove despite the extra proton.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Al",
+  "b": "Ca",
+  "predicted": "Al",
+  "actual": "Ca",
+  "reason": "Aluminum's single 3p electron is unusually easy to remove (the s-to-p drop), while calcium is removing one of a filled 4s pair, so the heavier element edges ahead.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Al",
+  "b": "Ga",
+  "predicted": "Al",
+  "actual": "Ga",
+  "reason": "Gallium's 4p electron sits outside a filled 3d shell that shields the nucleus poorly, so the extra nuclear charge pulls it slightly harder than expected and the usual drop down the group vanishes.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Al",
+  "b": "Tl",
+  "predicted": "Al",
+  "actual": "Tl",
+  "reason": "Thallium's 6p electron is held by a nucleus poorly shielded by the 4f and 5d shells, with relativistic contraction adding to the pull, so its ionization energy is higher than aluminum's.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "P",
+  "b": "S",
+  "predicted": "S",
+  "actual": "P",
+  "reason": "Sulfur's fourth 3p electron must pair up, and the pairing repulsion makes it easier to remove than one of phosphorus's three unpaired, half-filled 3p electrons.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Ca",
+  "b": "Ga",
+  "predicted": "Ga",
+  "actual": "Ca",
+  "reason": "Gallium's single 4p electron is higher in energy than calcium's paired 4s electrons, so even with eleven more protons gallium's first ionization energy comes out lower.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Ga",
+  "b": "Tl",
+  "predicted": "Ga",
+  "actual": "Tl",
+  "reason": "Thallium's 6p electron feels a nucleus poorly shielded by the 4f and 5d shells, and relativistic effects contract the inner shells further, so it is held more tightly than gallium's 4p electron.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "As",
+  "b": "Se",
+  "predicted": "Se",
+  "actual": "As",
+  "reason": "Selenium's fourth 4p electron must pair up, and the pairing repulsion makes it slightly easier to remove than one of arsenic's three unpaired 4p electrons.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "In",
+  "b": "Tl",
+  "predicted": "In",
+  "actual": "Tl",
+  "reason": "The 4f and 5d shells shield thallium's 6p electron poorly (the lanthanide contraction), so the nucleus holds it tighter than indium holds its 5p electron.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Sn",
+  "b": "Pb",
+  "predicted": "Sn",
+  "actual": "Pb",
+  "reason": "Lead's 6p electrons are held by a nucleus poorly shielded by the 4f and 5d shells, with relativistic contraction adding to the pull, so lead's ionization energy edges above tin's.",
+  "reviewed": false
+ },
+ {
+  "stat": "ie1_kjmol",
+  "a": "Pb",
+  "b": "Bi",
+  "predicted": "Bi",
+  "actual": "Pb",
+  "reason": "In period 6 the 6p level splits strongly by spin-orbit coupling; bismuth's third 6p electron goes into the higher 6p3/2 level and is easier to remove than one of lead's lower 6p1/2 pair.",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "Al",
+  "b": "Ga",
+  "predicted": "Al",
+  "actual": "Ga",
+  "reason": "Gallium's 4p electrons sit outside a filled 3d shell that shields the nucleus poorly, so gallium pulls bonding electrons harder than aluminum (the d-block contraction).",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "Al",
+  "b": "In",
+  "predicted": "Al",
+  "actual": "In",
+  "reason": "Indium's valence electrons sit outside a filled 4d shell that shields poorly, so its electronegativity stays above aluminum's instead of falling down the group.",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "Al",
+  "b": "Tl",
+  "predicted": "Al",
+  "actual": "Tl",
+  "reason": "Thallium's valence electrons are held by a nucleus poorly shielded by the 4f and 5d shells, with relativistic contraction adding to the pull, so it is more electronegative than aluminum.",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "Si",
+  "b": "Ge",
+  "predicted": "Si",
+  "actual": "Ge",
+  "reason": "Germanium's 4p electrons sit outside a filled 3d shell that shields the nucleus poorly, so germanium pulls bonding electrons slightly harder than silicon (the d-block contraction).",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "Si",
+  "b": "Sn",
+  "predicted": "Si",
+  "actual": "Sn",
+  "reason": "Tin's valence electrons sit outside filled 3d and 4d shells that shield poorly, so its electronegativity stays just above silicon's instead of falling down the group.",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "In",
+  "b": "Tl",
+  "predicted": "In",
+  "actual": "Tl",
+  "reason": "The 4f and 5d shells shield thallium's valence electrons poorly and relativistic contraction tightens its hold, so thallium is slightly more electronegative than indium.",
+  "reviewed": false
+ },
+ {
+  "stat": "en_pauling",
+  "a": "I",
+  "b": "Xe",
+  "predicted": "Xe",
+  "actual": "I",
+  "reason": "Xenon's Pauling value (2.6) is derived from its few compounds with fluorine and oxygen, and a noble gas does not continue the across-period rise, so iodine comes out higher.",
+  "reviewed": false
+ },
+ {
+  "stat": "mass",
+  "a": "Ar",
+  "b": "K",
+  "predicted": "K",
+  "actual": "Ar",
+  "reason": "Argon's dominant isotope is Ar-40 while potassium's is K-39, so argon averages heavier even with one fewer proton; Earth's Ar-40 is abundant because it is the decay product of K-40.",
+  "reviewed": false
+ },
+ {
+  "stat": "mass",
+  "a": "Te",
+  "b": "I",
+  "predicted": "I",
+  "actual": "Te",
+  "reason": "Tellurium's most abundant isotopes are the heavy Te-128 and Te-130, while iodine is a single isotope, I-127, so tellurium's average mass exceeds iodine's despite the lower atomic number.",
+  "reviewed": false
+ }
+]
