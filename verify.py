@@ -67,10 +67,10 @@ DATA_FILES = [                                 # JSON the game loads; each must 
     "/data/elements.json",                     # and parse as non-empty JSON (M1)
     "/data/stats.json",                        # (M1)
 ]
-DATA_REQUIRED = False                          # M0: the build script hasn't run yet, so a
-                                               # missing data file is a NOTE. Flip to True
-                                               # at M1 — from then on missing data FAILS.
+DATA_REQUIRED = True                           # M1+: the build has run, so a missing
+                                               # data file FAILS (it was a NOTE at M0).
 EXTRA_PAGES = [                                # (path, must-contain) — more pages to smoke-test
+    ("/gallery.html", "Card gallery"),         # the deck gallery (M1)
 ]
 STARTUP_TIMEOUT_SECONDS = 15                   # http.server binds in well under a second
 # ------------------------------------------------------------

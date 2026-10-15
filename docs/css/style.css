@@ -1,0 +1,131 @@
+/* Trend Duel — plain CSS, no images, no web fonts.
+   One accent colour per preset lives in --accent; everything else is neutral. */
+
+:root {
+  --accent: #1f6feb;        /* CP default; Honors swaps this at M4 */
+  --ink: #16191f;
+  --muted: #5c6470;
+  --paper: #ffffff;
+  --felt: #eef1f5;
+  --line: #d5dae2;
+  --lit: var(--accent);
+  --dim: #c9ced6;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--felt);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+header.site {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .9rem 1.25rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+header.site h1 { margin: 0; font-size: 1.35rem; letter-spacing: .02em; }
+header.site .sub { color: var(--muted); }
+header.site nav a { color: var(--accent); margin-left: 1rem; }
+
+main { padding: 1rem 1.25rem 2rem; }
+
+.banner.error {
+  background: #fde8e8;
+  border: 1px solid #e0a4a4;
+  color: #7a1f1f;
+  padding: .75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  white-space: pre-wrap;
+}
+
+.hint { color: var(--muted); margin: 0 0 .75rem; }
+
+/* ---------- gallery grid ---------- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: .8rem;
+}
+
+/* ---------- the card ---------- */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 18px rgba(0,0,0,.06);
+  padding: .6rem .7rem .7rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  cursor: pointer;
+  user-select: none;
+  min-height: 44px;             /* tap target floor */
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,.08), 0 10px 24px rgba(0,0,0,.09); }
+.card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: .8rem;
+  color: var(--muted);
+}
+.card-top .z { font-weight: 700; color: var(--ink); }
+
+.card .symbol {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+}
+.card .name { font-size: .95rem; font-weight: 600; }
+
+/* mini periodic table: 18 columns x 6 periods, CSS only */
+.mini {
+  display: grid;
+  grid-template-columns: repeat(18, 1fr);
+  gap: 1px;
+  margin: .2rem 0;
+}
+.mini .cell { aspect-ratio: 1 / 1; border-radius: 1px; }
+.mini .cell.main { background: var(--dim); }
+.mini .cell.d { background: var(--dim); opacity: .35; }
+.mini .cell.lit { background: var(--lit); box-shadow: 0 0 0 1px var(--lit); }
+.mini .cell.empty { background: transparent; }
+
+/* stat rows: labels always, values only when revealed */
+.stats {
+  list-style: none;
+  margin: .2rem 0 0;
+  padding: .35rem 0 0;
+  border-top: 1px dashed var(--line);
+  font-size: .8rem;
+}
+.stats li {
+  display: flex;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .12rem 0;
+}
+.stats .label { color: var(--muted); white-space: nowrap; }
+.stats .value { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 3.5em; text-align: right; white-space: nowrap; }
+.card:not(.revealed) .stats .value { color: transparent; }
+.card:not(.revealed) .stats .value::after {
+  content: "?";
+  color: var(--line);
+  font-weight: 400;
+}
+.stats .value.undefined { color: var(--muted); font-weight: 400; font-style: italic; }
+.stats li.winning .value { color: var(--accent); }
+.card .econf { font-size: .78rem; color: var(--muted); }

@@ -18,21 +18,20 @@ Entry format:
 
 ## Current state
 
-- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0 scaffolding
-  done; M1 (data build + card gallery) is next.
+- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0 and M1 done;
+  M2 (duel against Random) is next.
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
   The port map was read from every other project's verify.py on disk at M0
   rather than asked — 5093 is the next free after travel app's 5092.
-- **Environment:** global Python 3.13.15 with pytest 9.1.1. `mendeleev` is
-  NOT installed yet; M1 installs it (pinned 1.3.0 in tools/requirements.txt)
-  into a project `.venv` so the global interpreter stays clean. Node
+- **Environment:** global Python 3.13.15 with pytest 9.1.1. `mendeleev` 1.3.0
+  is installed in the project `.venv` (tools/requirements.txt); run the
+  build with `.venv\Scripts\python.exe toolsuild_elements.py`. Node
   **v24.16.0** is installed, so JS engine tests will run with
   `node --test tests/js`; `docs/selftest.html` is the fallback only if Node
   disappears.
-- **Suite:** `python verify.py` PASSES against the placeholder
-  `docs/index.html` carrying the `Trend Duel` marker; data files are NOTEd
-  as not built (DATA_REQUIRED flips to True at M1). Invariants whose inputs
-  don't exist yet SKIP naming the milestone that arms them (M1, M2, M3).
+- **Suite:** `python verify.py` PASSES (index + gallery + both data files
+  parsed). pytest: 21 passed, 2 skipped (engine purity arms at M2,
+  exceptions.json at M3).
 - **Open bugs:** none.
 - **Machine note:** pytest.ini pins `--basetemp=.pytest_tmp` because this
   machine's system temp has an ACL-broken `pytest-of-gator` directory that
@@ -44,6 +43,29 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-14 — M1: Data build and card gallery
+- Shipped: tools/build_elements.py generates docs/data/elements.json (42
+  cards), docs/data/stats.json (5 stats) and data/SOURCES.md from mendeleev
+  1.3.0 in the project .venv; ten hand-checked values are a BUILD GATE (the
+  script fails on drift). docs/gallery.html renders every card from the JSON
+  with a CSS-only mini periodic table; click/Space flips hidden <-> revealed.
+  Cs flips to 244 pm (Cordero 2008). pytest 21 passed, 2 skipped (M2, M3);
+  verify.py PASS with both data files parsed and the gallery page answering.
+- Deferred: nothing.
+- Open bugs: none.
+- Decisions: (1) Undefined cells: radius null for all six noble gases by
+  rule; electronegativity null where the dataset is blank — He, Ne, Ar, Kr,
+  Rn. Xe HAS a Pauling value (2.6) in this dataset and keeps it. (2) Helium's
+  valence_e is 8 by the kickoff's locked column rule (invariant: valence_e ==
+  column, no exceptions). Chemically He has 2 electrons total — FLAGGED for
+  the teacher; changing it means changing the kickoff rule and the invariant.
+  (3) Mass stored to 3 decimals, displayed to 2; Po/At/Rn carry the mass
+  number of the longest-lived isotope, as mendeleev stores them.
+  (4) Hydrogen's econf comes out of mendeleev as "1s" (no superscript 1).
+  (5) Shared card renderer lives in docs/js/cards.js so the M2 board reuses
+  it; data loading with loud checks (42 cards, every stat present) in
+  docs/js/data.js.
 
 ## 2026-10-14 — M0: Repo scaffolding
 - Shipped: kit files adapted for a static site — run.bat serves docs/ on
