@@ -112,6 +112,11 @@ trend_duel_v1_kickoff.md   the spec
 
 ## How to run
 
+- **Live site:** https://gatorryan6-oss.github.io/trend-duel/ — GitHub Pages serving
+  `docs/` on `main` of https://github.com/gatorryan6-oss/trend-duel. Every
+  push to main redeploys in a minute or two. `gh` lives at
+  `C:\Program Files\GitHub CLI\gh.exe` (not on PATH in older shells).
+
 - `run.bat` — serves `docs/` on **port 5093** with `python -m http.server`
   and opens the browser once the server answers. Other devices on the same
   network can reach it at this PC's LAN address on that port.

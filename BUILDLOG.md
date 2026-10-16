@@ -18,9 +18,11 @@ Entry format:
 
 ## Current state
 
-- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M5 built;
-  M5's last step (push to GitHub, enable Pages on docs/, Chromebook test)
-  needs the repo to exist — see the M5 entry. exceptions.json: 32 drafted reasons, 0 flipped to
+- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M5 built and
+  pushed. Remote: https://github.com/gatorryan6-oss/trend-duel (public).
+  Live site: https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
+  OPEN: the Chromebook test on the school network — the human reports back,
+  then Phase 1 is complete and the build STOPS for confirmation before Phase 2. exceptions.json: 32 drafted reasons, 0 flipped to
   reviewed:true so far — the game shows the generic upset line until the
   teacher flips them.
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
@@ -39,9 +41,9 @@ Entry format:
 - **Machine note:** pytest.ini pins `--basetemp=.pytest_tmp` because this
   machine's system temp has an ACL-broken `pytest-of-gator` directory that
   errors any suite using tmp_path. Do not remove it.
-- **Standards label:** the kickoff says to confirm HS-PS1-1 wording against the
-  MA 2016 STE Framework text before writing it into the app. Not done yet;
-  the human holds the framework. Do it at M5 (About page) — ask first.
+- **Standards label:** HS-PS1-1 wording on about.html was taken from the
+  DESE 2016 STE framework PDF (p. 85), extracted with pypdf at M5 — confirmed
+  against the framework text, not recalled.
 
 ---
 
@@ -63,14 +65,18 @@ Entry format:
   43 Node tests; pytest 24; verify.py PASS (index, gallery, about, 3 data
   files). Sample line produced in the browser:
   TD1|Ryan|2026-10-15|honors|rounds=20|won=7|lost=13|upsets=1|radius=1/2,ie1=3/3,en=0/2,mass=0/1
-- Deferred: GitHub push + Pages — see below.
+- Deferred: nothing. 2026-10-15 (later): GitHub CLI 2.102.0 installed via
+  winget and signed in as gatorryan6-oss; repo created public, main pushed,
+  Pages enabled on main /docs via the API. URL: https://gatorryan6-oss.github.io/trend-duel/
+  Chromebook result: PENDING (the human tests on the school network).
 - Open bugs: none.
 - Decisions: (1) rounds counts every resolved round incl. ties; won/lost
   exclude ties, so won+lost <= rounds. (2) Mastery tracks seat 0 only (the
   student at the keyboard; Player 1 in hotseat). (3) `preset` in the
   results string is cp / honors / custom via presetOf(). (4) The GitHub CLI
-  is not installed and no token is in the environment; git uses the
-  credential manager, so a push works once the repo exists.
+  was not installed at first; it is now (winget GitHub.cli), signed in via
+  `gh auth login --web`. `gh` is NOT on PATH in shells opened before the
+  install — use the full path C:\Program Files\GitHub CLI\gh.exe.
 
 ## 2026-10-14 — M4.1: hidden screens stay hidden
 - Shipped: `[hidden] { display: none !important }` in style.css. The curtain
