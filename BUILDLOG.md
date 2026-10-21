@@ -18,13 +18,22 @@ Entry format:
 
 ## Current state
 
-- **Phase 1 in progress.** Spec is `trend_duel_v1_kickoff.md`. M0-M5 built and
-  pushed. Remote: https://github.com/gatorryan6-oss/trend-duel (public).
-  Live site: https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
-  OPEN: the Chromebook test on the school network — the human reports back,
-  then Phase 1 is complete and the build STOPS for confirmation before Phase 2. exceptions.json: 32 drafted reasons, 0 flipped to
-  reviewed:true so far — the game shows the generic upset line until the
-  teacher flips them.
+- **PHASE 1 COMPLETE (2026-10-21) — STOPPED, awaiting the human's
+  confirmation before Phase 2.** Spec is `trend_duel_v1_kickoff.md`; all
+  milestones M0-M5 (plus M4.1) shipped and pushed. Remote:
+  https://github.com/gatorryan6-oss/trend-duel (public). Live site:
+  https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
+  **Chromebook result: the Pages URL loads and plays on a school Chromebook
+  over the school network** (reported by the human 2026-10-21).
+- **Next up:** nothing scheduled — wait for the human. Phase 2 candidates
+  (kickoff §6): Call mode (reuses engine + predictor as-is), Honors deck
+  extension (3d block, electron affinity, ionic radius + its own exceptions
+  pass), teacher page that parses TD1 results lines, offline service
+  worker, sound/animation polish, optional Flask score server.
+- **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
+  flipped to reviewed:true — the game shows the generic upset line until he
+  flips them. Helium's valence_e is 8 by the kickoff's locked column rule
+  (flagged at M1; changing it means changing the rule and the invariant).
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
   The port map was read from every other project's verify.py on disk at M0
   rather than asked — 5093 is the next free after travel app's 5092.
@@ -68,7 +77,8 @@ Entry format:
 - Deferred: nothing. 2026-10-15 (later): GitHub CLI 2.102.0 installed via
   winget and signed in as gatorryan6-oss; repo created public, main pushed,
   Pages enabled on main /docs via the API. URL: https://gatorryan6-oss.github.io/trend-duel/
-  Chromebook result: PENDING (the human tests on the school network).
+  Chromebook result (2026-10-21): PASS — loads and plays on a school
+  Chromebook over the school network. PHASE 1 COMPLETE.
 - Open bugs: none.
 - Decisions: (1) rounds counts every resolved round incl. ties; won/lost
   exclude ties, so won+lost <= rounds. (2) Mastery tracks seat 0 only (the
