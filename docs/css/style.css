@@ -367,6 +367,25 @@ details.settings summary {
   .call-buttons { grid-column: 1 / -1; padding-top: 0; }
 }
 
+/* ---------- teacher page ---------- */
+.teacher textarea {
+  width: 100%;
+  max-width: 980px;
+  font: .9rem ui-monospace, Consolas, monospace;
+  padding: .6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  margin-bottom: .6rem;
+}
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+.class-table { border-collapse: collapse; background: var(--paper); font-size: .95rem; }
+.class-table th, .class-table td { padding: .35rem .7rem; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+.class-table th { cursor: pointer; user-select: none; background: var(--felt); position: sticky; top: 0; }
+.class-table td:nth-child(n+5), .class-table th:nth-child(n+5) { text-align: right; font-variant-numeric: tabular-nums; }
+.class-table tr.class-row td { font-weight: 700; border-top: 2px solid var(--ink); }
+#errors-box ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+
 /* ---------- hotseat curtain ---------- */
 .curtain {
   min-height: 60vh;

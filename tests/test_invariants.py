@@ -486,6 +486,24 @@ def test_settings_defaults_for_phase_2():
     assert not re.search(r"timerSeconds:\s*\d", presets), "No preset may switch the timer on."
 
 
+TEACHER_JS = DOCS / "js" / "teacher.js"
+TEACHER_HTML = DOCS / "teacher.html"
+
+
+def test_teacher_page_has_one_parser():
+    """The teacher page reads results lines through results.js parseResults
+    and nothing else — a second parser would be a second source of truth for
+    the frozen TD1 format (Phase 2 kickoff §2)."""
+    require(TEACHER_JS, "M7", "The teacher page script")
+    text = TEACHER_JS.read_text(encoding="utf-8")
+    assert re.search(r"import\s*\{[^}]*\bparseResults\b[^}]*\}\s*from\s*[\"']\./results\.js[\"']", text), (
+        "teacher.js must import parseResults from ./results.js")
+    assert not re.search(r"split\(\s*[\"']\|[\"']\s*\)", text), (
+        "teacher.js must not split results lines on '|' itself — use parseResults.")
+    assert TEACHER_HTML.exists(), "docs/teacher.html is missing."
+    assert IDENTITY_MARKER in TEACHER_HTML.read_text(encoding="utf-8")
+
+
 # ---------------- (9) exceptions.json validates ----------------
 
 def test_exceptions_file_validates(elements, stats):

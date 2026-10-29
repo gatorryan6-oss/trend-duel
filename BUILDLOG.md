@@ -19,15 +19,15 @@ Entry format:
 ## Current state
 
 - **Phase 2 in progress.** Spec is `trend_duel_phase2_kickoff.md` (approved
-  2026-10-28). M6 (Call mode) done; M7 (teacher page) is next, then M8
-  (projector layout). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
+  2026-10-28). M6 (Call mode) and M7 (teacher page) done; M8 (projector
+  layout) is next, then STOP. Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
   complete and live. Remote:
   https://github.com/gatorryan6-oss/trend-duel (public). Live site:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** M7 teacher page (docs/teacher.html + teacher.js, ONE parser
-  = results.js parseResults), then M8 projector toggle. STOP after M8.
+- **Next up:** M8 projector toggle (settings.projector, key P on the title
+  screen, rem-scaled board/call/reveal). STOP after M8.
 - **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
   flipped to reviewed:true — the game shows the generic upset line until he
   flips them. Helium's valence_e is 8 by the kickoff's locked column rule
@@ -41,9 +41,9 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 27 passed, 0 skipped. `npm test`: 54 tests pass;
+  parsed). pytest: 28 passed, 0 skipped. `npm test`: 60 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
-  gallery.html and about.html.
+  gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
 - **Machine note:** pytest.ini pins `--basetemp=.pytest_tmp` because this
   machine's system temp has an ACL-broken `pytest-of-gator` directory that
@@ -55,6 +55,27 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-28 — M7: Teacher page (Phase 2)
+- Shipped: docs/teacher.html + docs/js/teacher.js. buildTable(text) is pure:
+  rows (with Mode read from the preset's -call suffix), errors
+  [{line, text, reason}] straight from parseResults, the Class row with
+  per-stat won/chosen and %, and statColumns as the canonical-ordered union.
+  sortRows (stable; stat columns by win fraction), toCsv (same columns, class
+  row last, quoted where needed), Download CSV via a Blob URL. "Teacher" link
+  in every header; verify.py smoke-tests /teacher.html. 6 new Node tests (60
+  total); pytest 28 (new: teacher.js imports parseResults and never splits on
+  '|' itself). Browser checkpoint: a paste of 7 lines (2 Call games, 1 blank,
+  1 garbage) gave 5 rows, the garbage line named with the parser's reason,
+  a class row (88 rounds, 53 won, ie1 21/29 · 72%), and header sorting.
+- Deferred: nothing.
+- Open bugs: none.
+- Decisions: (1) teacher.js exports the pure functions and wires the page
+  only when a document with #paste exists, so Node imports it cleanly.
+  (2) Lines are reported by their position in the paste (1-based, blanks
+  counted) so the teacher can find them in the sheet. (3) The CSV writes
+  the class row's per-stat cells as "won/chosen (pct%)" in one cell to keep
+  the column count identical to the table.
 
 ## 2026-10-28 — M6: Call mode (Phase 2)
 - Shipped: docs/js/callmode.js — pure Call-mode rules on top of the Duel

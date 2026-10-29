@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trend Duel — Teacher</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site">
+  <h1>Trend Duel</h1>
+  <span class="sub">Teacher: class results</span>
+  <nav><a href="index.html">Play</a><a href="gallery.html">Card gallery</a><a href="about.html">About the data</a></nav>
+</header>
+<main class="teacher">
+  <p class="hint">Paste the column of results lines from your Google Classroom question (one <code>TD1|…</code> line per student, blank lines are fine), then build the table. Nothing you paste is stored or sent anywhere; close the tab and it is gone.</p>
+  <textarea id="paste" rows="8" spellcheck="false" placeholder="TD1|Ryan|2026-10-14|honors|rounds=18|won=11|lost=7|upsets=3|radius=5/6,ie1=3/5,en=2/4,mass=1/3"></textarea>
+  <div class="results-actions">
+    <button type="button" id="build" class="big">Build table</button>
+    <button type="button" id="download" disabled>Download CSV</button>
+    <span id="summary" class="hint small" aria-live="polite"></span>
+  </div>
+  <div class="table-wrap">
+    <table class="class-table">
+      <thead id="table-head"></thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+  <div id="errors-box" class="banner error" hidden>
+    <b>Lines I could not read</b> (they are left out of the table):
+    <ul id="errors"></ul>
+  </div>
+  <p class="hint small">Per-stat cells are rounds won over rounds chosen; in Call mode, calls correct over calls made. Click a column heading to sort.</p>
+</main>
+<script type="module" src="js/teacher.js"></script>
+</body>
+</html>

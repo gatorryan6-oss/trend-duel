@@ -96,6 +96,7 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   js/results.js            the FROZEN TD1 results string + parser (M5)
   js/callmode.js           Call mode rules, pure, built on the engine (Phase 2 M6)
   about.html  gallery.html  sources/standards page; the deck gallery
+  teacher.html js/teacher.js  paste TD1 lines -> class table; ONE parser (results.js) (Phase 2 M7)
   js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)
   data/stats.json          stat definitions (M1, generated)
