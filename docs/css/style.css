@@ -224,7 +224,7 @@ button kbd {
 
 .table {
   display: grid;
-  grid-template-columns: minmax(200px, 260px) 1fr minmax(200px, 260px);
+  grid-template-columns: minmax(12.5rem, 16.25rem) 1fr minmax(12.5rem, 16.25rem);
   gap: 1.25rem;
   align-items: start;
 }
@@ -348,7 +348,7 @@ details.settings summary {
 .call-question b { color: var(--accent); }
 .call-table {
   display: grid;
-  grid-template-columns: minmax(200px, 280px) 1fr minmax(200px, 280px);
+  grid-template-columns: minmax(12.5rem, 17.5rem) 1fr minmax(12.5rem, 17.5rem);
   gap: 1.25rem;
   align-items: start;
 }
@@ -385,6 +385,17 @@ details.settings summary {
 .class-table td:nth-child(n+5), .class-table th:nth-child(n+5) { text-align: right; font-variant-numeric: tabular-nums; }
 .class-table tr.class-row td { font-weight: 700; border-top: 2px solid var(--ink); }
 #errors-box ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+
+/* ---------- projector layout (Phase 2 M8) ----------
+   One class on <html> scales the root font size by 1.5x; everything sized in
+   rem follows. No fixed pixel widths here — the invariant checks that. */
+html.projector { font-size: 24px; }
+html.projector header.site { padding: .6rem 1.25rem; }
+html.projector .hint.small, html.projector .strip .round, html.projector .strip .pot { font-size: .8rem; }
+html.projector .preset-row { max-width: 60rem; }
+html.projector .mini .cell.lit { box-shadow: 0 0 0 2px var(--lit); }
+html.projector .explain { font-size: 1.1rem; }
+html.projector .call-question { font-size: 1.5rem; }
 
 /* ---------- hotseat curtain ---------- */
 .curtain {

@@ -80,6 +80,8 @@ you're trying to do, the test is right until the human says otherwise.
 - **The results string is a frozen contract** (kickoff §5, `TD1|...`). Phase
   2's teacher page parses exactly that.
 - **Presets are saved toggle combinations, not separate games.**
+- **The projector layout scales the root font size; layouts stay in rem.**
+  No projector rule may pin a pixel width (invariant).
 
 ## Layout
 

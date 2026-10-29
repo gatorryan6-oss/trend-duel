@@ -18,16 +18,20 @@ Entry format:
 
 ## Current state
 
-- **Phase 2 in progress.** Spec is `trend_duel_phase2_kickoff.md` (approved
-  2026-10-28). M6 (Call mode) and M7 (teacher page) done; M8 (projector
-  layout) is next, then STOP. Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
+- **PHASE 2 COMPLETE (2026-10-28) — STOPPED, awaiting the human's
+  confirmation before Phase 3.** Spec `trend_duel_phase2_kickoff.md`; M6 Call
+  mode, M7 teacher page, M8 projector layout all shipped and pushed (Pages
+  redeploys on each push). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
   complete and live. Remote:
   https://github.com/gatorryan6-oss/trend-duel (public). Live site:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** M8 projector toggle (settings.projector, key P on the title
-  screen, rem-scaled board/call/reveal). STOP after M8.
+- **Next up:** nothing scheduled — wait for the human. Phase 3 candidates
+  (Phase 2 spec §6): Honors deck extension (3d block, electron affinity,
+  ionic radius + exceptions pass), offline service worker with a versioned
+  cache and a visible update line, sound/animation polish, optional Flask
+  score server consuming the teacher table's shape.
 - **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
   flipped to reviewed:true — the game shows the generic upset line until he
   flips them. Helium's valence_e is 8 by the kickoff's locked column rule
@@ -41,7 +45,7 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 28 passed, 0 skipped. `npm test`: 60 tests pass;
+  parsed). pytest: 29 passed, 0 skipped. `npm test`: 60 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
@@ -55,6 +59,23 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-28 — M8: Projector layout (Phase 2) — PHASE 2 COMPLETE
+- Shipped: settings.projector (checkbox under Display; key P on the title
+  screen toggles it; persisted). One class on <html> scales the root font
+  to 24px (1.5x); the board and Call grids are now rem-based so cards,
+  buttons and type grow together; the settings and mastery panels collapse
+  when it switches on. New invariant: html.projector scales font-size, the
+  .table/.call-table grid columns contain no px, and no projector rule pins
+  a width over 1300 px. pytest 29; `npm test` 60; verify.py PASS. Browser
+  checkpoint at 1366x768: root 16px -> 24px on P, card width 390 px, no
+  horizontal overflow on title, board, reveal, Call and Call reveal
+  (scrollWidth <= 1366), P again -> 16px with the checkbox cleared.
+- Deferred: nothing.
+- Open bugs: none.
+- Decisions: 1.5x rather than the spec's "roughly 1.6x" — at 1.6x the
+  three-column board needed 1380 px for its widest case; 1.5x fits 1366 with
+  the two outer columns capped at 16.25rem / 17.5rem.
 
 ## 2026-10-28 — M7: Teacher page (Phase 2)
 - Shipped: docs/teacher.html + docs/js/teacher.js. buildTable(text) is pure:

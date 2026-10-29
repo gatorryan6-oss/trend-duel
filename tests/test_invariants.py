@@ -504,6 +504,27 @@ def test_teacher_page_has_one_parser():
     assert IDENTITY_MARKER in TEACHER_HTML.read_text(encoding="utf-8")
 
 
+CSS_FILE = DOCS / "css" / "style.css"
+
+
+def test_projector_layout_scales_without_fixed_widths():
+    """The projector toggle scales the root font size; layouts must be in rem
+    so they grow with it, and no projector rule may pin a width over 1300 px
+    (Phase 2 kickoff M8: nothing overflows a 1366 px projector)."""
+    css = CSS_FILE.read_text(encoding="utf-8")
+    assert re.search(r"html\.projector\s*\{[^}]*font-size", css), (
+        "style.css must scale the root font size under html.projector.")
+    for selector in (".table", ".call-table"):
+        m = re.search(re.escape(selector) + r"\s*\{([^}]*)\}", css)
+        assert m, f"{selector} rule missing"
+        cols = re.search(r"grid-template-columns:([^;]*);", m.group(1))
+        assert cols and "px" not in cols.group(1), (
+            f"{selector} grid columns must be in rem so the projector scale applies.")
+    for block in re.finditer(r"html\.projector[^{]*\{([^}]*)\}", css):
+        for w in re.finditer(r"(?<![-\w])width:\s*(\d+)px", block.group(1)):
+            assert int(w.group(1)) <= 1300, f"projector rule pins width {w.group(1)}px"
+
+
 # ---------------- (9) exceptions.json validates ----------------
 
 def test_exceptions_file_validates(elements, stats):

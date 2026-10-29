@@ -70,6 +70,8 @@ function fillForm() {
   f.elements.timerSeconds.value = timerOn ? settings.timerSeconds : 10;
   f.elements.timerSeconds.disabled = !timerOn;
   f.elements.timerOn.disabled = settings.mode !== "call";
+  f.elements.projector.checked = Boolean(settings.projector);
+  applyProjector();
   for (const box of f.querySelectorAll("input[name=stat]")) {
     box.checked = settings.statKeys.includes(box.value);
   }
@@ -98,6 +100,7 @@ function readForm() {
     roundCap: Number(f.elements.roundCap.value),
     statKeys: ALL_STATS.filter(k => chosen.has(k)),
     timerSeconds: f.elements.timerOn.checked ? Number(f.elements.timerSeconds.value) : null,
+    projector: f.elements.projector.checked,
   };
   save(settings, globalThis.localStorage);
   fillForm();
@@ -111,6 +114,20 @@ function buildStatBoxes() {
     label.innerHTML = `<input type="checkbox" name="stat" value="${stat.key}"> ${stat.label}`;
     holder.appendChild(label);
   }
+}
+
+// Projector layout: one class on <html> scales the root font size, and
+// everything measured in rem (cards, buttons, grid columns) grows with it.
+function applyProjector() {
+  const on = Boolean(settings.projector);
+  document.documentElement.classList.toggle("projector", on);
+  if (on) for (const d of document.querySelectorAll("details.settings")) d.open = false;
+}
+
+function toggleProjector() {
+  settings = { ...settings, projector: !settings.projector };
+  save(settings, globalThis.localStorage);
+  fillForm();
 }
 
 function choosePreset(key) {
@@ -462,6 +479,8 @@ function onKey(e) {
     e.preventDefault(); liftCurtain();
   } else if (screen === "end" && go) {
     e.preventDefault(); startGame();
+  } else if (screen === "title" && (e.key === "p" || e.key === "P")) {
+    toggleProjector();
   }
 }
 
