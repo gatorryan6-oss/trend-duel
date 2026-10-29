@@ -18,18 +18,16 @@ Entry format:
 
 ## Current state
 
-- **PHASE 1 COMPLETE (2026-10-21) — STOPPED, awaiting the human's
-  confirmation before Phase 2.** Spec is `trend_duel_v1_kickoff.md`; all
-  milestones M0-M5 (plus M4.1) shipped and pushed. Remote:
+- **Phase 2 in progress.** Spec is `trend_duel_phase2_kickoff.md` (approved
+  2026-10-28). M6 (Call mode) done; M7 (teacher page) is next, then M8
+  (projector layout). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
+  complete and live. Remote:
   https://github.com/gatorryan6-oss/trend-duel (public). Live site:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** nothing scheduled — wait for the human. Phase 2 candidates
-  (kickoff §6): Call mode (reuses engine + predictor as-is), Honors deck
-  extension (3d block, electron affinity, ionic radius + its own exceptions
-  pass), teacher page that parses TD1 results lines, offline service
-  worker, sound/animation polish, optional Flask score server.
+- **Next up:** M7 teacher page (docs/teacher.html + teacher.js, ONE parser
+  = results.js parseResults), then M8 projector toggle. STOP after M8.
 - **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
   flipped to reviewed:true — the game shows the generic upset line until he
   flips them. Helium's valence_e is 8 by the kickoff's locked column rule
@@ -43,7 +41,7 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 24 passed, 0 skipped. `npm test`: 43 tests pass;
+  parsed). pytest: 27 passed, 0 skipped. `npm test`: 54 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html and about.html.
 - **Open bugs:** none.
@@ -57,6 +55,31 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-28 — M6: Call mode (Phase 2)
+- Shipped: docs/js/callmode.js — pure Call-mode rules on top of the Duel
+  state (newCallGame, startRound, askableStats, makeCall, continueCall,
+  timeLeft, callScore, masteryReveal); engine.js untouched and now pinned by
+  SHA-256 in the invariants. settings.js: mode "call", timerSeconds (null =
+  off; 3-60), projector key (false; UI at M8), validation for both. UI: the
+  Call screen (both cards face up, numbers hidden, the stat as a question,
+  Left / Right / Tie with keys 1-3, optional countdown that scores a timeout
+  as "No call"), the shared reveal (showReveal), Call end screen with calls
+  correct, and results lines with the `-call` suffix. 11 new Node tests
+  (54 total); pytest 27 (3 new: engine hash, callmode purity, Phase 2
+  settings defaults); verify.py PASS. Browser checkpoint: a 20-round Honors
+  Call game (both directions seen) ended 10/20 with
+  TD1|Ryan|2026-10-28|honors-call|rounds=20|won=10|lost=10|upsets=0|radius=1/3,ie1=4/7,en=0/3,mass=5/7
+  which parseResults accepts; a 3 s timer produced "No call — time ran out".
+  N-vs-O upset and the valence tie are covered by Node tests (forced hands).
+- Deferred: nothing.
+- Open bugs: none.
+- Decisions: (1) Call mode passes `now` and an rng into every function, so
+  the timer and the stat choice are testable without a clock. (2) A Call
+  round feeds mastery through masteryReveal() — chosen for the announced
+  stat, won when correct — so mastery.js and results.js stay unchanged.
+  (3) The per-call timer restarts from the moment the next round is shown
+  (not from the previous deadline), so a slow Continue never eats clock.
 
 ## 2026-10-15 — M5: Mastery, results string, About page, audits
 - Shipped: docs/js/mastery.js — per-stat chosen/won tally for seat 0, all-time

@@ -13,7 +13,7 @@ and the higher value wins. Numbers stay hidden until the reveal, so the only
 way to pick well is to reason from the element's position on the table. The
 reveal explains itself: trend right, trends conflict, or upset (with a
 teacher-reviewed reason). The full spec is `trend_duel_v1_kickoff.md` — read
-it before proposing changes.
+it before proposing changes. Phase 2's spec is `trend_duel_phase2_kickoff.md`.
 
 **The single most important priority: the chemistry must be right.** Real
 sourced data, real exceptions, explanations the teacher would put his name on.
@@ -57,6 +57,9 @@ you're trying to do, the test is right until the human says otherwise.
   Nothing under `docs/` loads anything over http(s). Invariant test, not a
   guideline.
 - **Size budget: everything under `docs/` totals under 300 KB.**
+- **`docs/js/engine.js` is pure logic and, since Phase 2, frozen by hash.**
+  Call mode (`callmode.js`) builds on it; a deliberate engine change means
+  updating `ENGINE_SHA256_PHASE1` in the invariants with a build-log note.
 - **`docs/js/engine.js` is pure logic.** It takes state and a choice and
   returns new state. It never references `document`, `window`, or
   `localStorage`, and imports nothing from the page layer. That is what makes
@@ -91,6 +94,7 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   js/settings.js           every toggle, presets, localStorage save/load (M4)
   js/mastery.js            per-stat tally, localStorage td1.mastery.v1 (M5)
   js/results.js            the FROZEN TD1 results string + parser (M5)
+  js/callmode.js           Call mode rules, pure, built on the engine (Phase 2 M6)
   about.html  gallery.html  sources/standards page; the deck gallery
   js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)

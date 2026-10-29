@@ -11,6 +11,8 @@ import { PRESETS, ALL_STATS, applyPreset, presetOf, validate, toConfig, load, sa
   from "./settings.js";
 import { resultsString, localDate, cleanName } from "./results.js";
 import * as Mastery from "./mastery.js";
+import { newCallGame, makeCall, continueCall, timeLeft, callScore, masteryReveal }
+  from "./callmode.js";
 
 const OPPONENT_DELAY_MS = 650;
 const NAME_KEY = "td1.name.v1";     // the self-entered first name, remembered
@@ -24,6 +26,7 @@ let viewer = 0;           // whose hand the board shows: 0 vs computer; the pick
 let lastPicker = null;    // hotseat: who picked last round, to know when to drop the curtain
 let opponentRng = makeRng(Date.now() >>> 0);
 let busy = false;         // true while the computer is "thinking"
+let callTimer = null;     // interval handle for the Call-mode countdown
 
 const $ = (id) => document.getElementById(id);
 const hotseat = () => settings.mode === "hotseat";
@@ -62,12 +65,17 @@ function fillForm() {
   f.elements.face.value = settings.face;
   f.elements.directionToken.checked = settings.directionToken;
   f.elements.roundCap.value = settings.roundCap;
+  const timerOn = settings.timerSeconds !== null && settings.timerSeconds !== undefined;
+  f.elements.timerOn.checked = timerOn;
+  f.elements.timerSeconds.value = timerOn ? settings.timerSeconds : 10;
+  f.elements.timerSeconds.disabled = !timerOn;
+  f.elements.timerOn.disabled = settings.mode !== "call";
   for (const box of f.querySelectorAll("input[name=stat]")) {
     box.checked = settings.statKeys.includes(box.value);
   }
   const greedyOption = f.elements.opponent.querySelector("option[value=greedy]");
   greedyOption.disabled = !settings.allowGreedy;
-  f.elements.opponent.disabled = settings.mode === "hotseat";
+  f.elements.opponent.disabled = settings.mode !== "computer";
   const preset = presetOf(settings);
   $("preset-name").textContent = preset === "custom" ? "Custom" : PRESETS[preset].label;
   const problem = validate(settings);
@@ -89,6 +97,7 @@ function readForm() {
     directionToken: f.elements.directionToken.checked,
     roundCap: Number(f.elements.roundCap.value),
     statKeys: ALL_STATS.filter(k => chosen.has(k)),
+    timerSeconds: f.elements.timerOn.checked ? Number(f.elements.timerSeconds.value) : null,
   };
   save(settings, globalThis.localStorage);
   fillForm();
@@ -114,11 +123,101 @@ function choosePreset(key) {
 function startGame() {
   const problem = validate(settings);
   if (problem) { $("settings-problem").textContent = problem; return; }
-  game = newGame(data.elements, data.stats, toConfig(settings), Date.now() >>> 0);
+  stopTimer();
   gameTally = Mastery.emptyTally();
+  if (settings.mode === "call") return startCallGame();
+  game = newGame(data.elements, data.stats, toConfig(settings), Date.now() >>> 0);
   viewer = 0;
   lastPicker = null;
   renderBoard();
+}
+
+// ---------- Call mode ----------
+// Both cards face up, the stat announced, numbers hidden; the player calls
+// Left, Right or Tie before the reveal. All rules live in callmode.js.
+function startCallGame() {
+  game = newCallGame(data.elements, data.stats,
+    { ...toConfig(settings), timerSeconds: settings.timerSeconds },
+    Date.now() >>> 0, opponentRng, Date.now());
+  renderCall();
+}
+
+function stopTimer() {
+  if (callTimer) { clearInterval(callTimer); callTimer = null; }
+}
+
+function renderCall() {
+  const c = game.call;
+  const stat = statByKey(c.stat);
+  const s = callScore(game);
+  $("call-correct").textContent = s.correct;
+  $("call-rounds").textContent = s.rounds;
+  $("call-won").textContent = s.won;
+  $("call-round").textContent = `Round ${game.round} of ${game.config.roundCap}`;
+
+  const banner = $("call-direction");
+  banner.hidden = !game.config.directionToken;
+  if (game.config.directionToken) {
+    banner.textContent = c.direction === "high" ? "Highest wins" : "Lowest wins";
+    banner.dataset.direction = c.direction;
+  }
+  const which = c.direction === "low" ? "lower" : "higher";
+  $("call-question").innerHTML = `Which has the ${which} <b>${stat.label.toLowerCase()}</b>?`;
+
+  const opts = { statKeys: game.config.statKeys, revealed: false, face: settings.face };
+  $("call-left").replaceChildren(renderCard(c.a, data.stats, opts));
+  $("call-right").replaceChildren(renderCard(c.b, data.stats, opts));
+
+  const holder = $("call-buttons");
+  const timerEl = $("call-timer");
+  holder.replaceChildren(timerEl);
+  [["left", `Left (${c.a.symbol})`], ["right", `Right (${c.b.symbol})`], ["tie", "Tie"]]
+    .forEach(([call, label], i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "call-btn";
+      btn.dataset.call = call;
+      btn.innerHTML = `<kbd>${i + 1}</kbd> ${label}`;
+      btn.addEventListener("click", () => onCall(call));
+      holder.appendChild(btn);
+    });
+
+  stopTimer();
+  if (c.deadline !== null) {
+    timerEl.hidden = false;
+    const tick = () => {
+      const left = timeLeft(game, Date.now());
+      timerEl.textContent = (left / 1000).toFixed(1) + " s";
+      timerEl.dataset.urgent = left <= 3000;
+      if (left <= 0) onCall("none");
+    };
+    tick();
+    callTimer = setInterval(tick, 100);
+  } else {
+    timerEl.hidden = true;
+  }
+  show("call");
+}
+
+function onCall(call) {
+  if (!game || game.phase !== "call") return;
+  stopTimer();
+  game = makeCall(game, call, data.stats);
+  const r = game.reveal;
+  const stat = statByKey(r.stat);
+  const why = explain(r, stat, data.exceptions);
+  gameTally = Mastery.recordReveal(gameTally, masteryReveal(r), why.upset, 0);
+  const winnerName = r.winner === null ? "a tie" : (r.winner === 0 ? `Left, ${r.a.symbol}` : `Right, ${r.b.symbol}`);
+  let outcome;
+  if (call === "none") outcome = `No call — time ran out. The answer was ${winnerName}.`;
+  else if (r.correct) outcome = "Correct call!";
+  else outcome = `Wrong call — it was ${winnerName}.`;
+  const called = { left: `Left (${r.a.symbol})`, right: `Right (${r.b.symbol})`, tie: "Tie", none: "nothing" }[call];
+  showReveal(r, why, {
+    header: `${stat.label}` + (game.config.directionToken ? ` — ${r.direction === "high" ? "highest" : "lowest"} wins` : "") +
+            `. You called ${called}.`,
+    outcome, seatA: "Left", seatB: "Right",
+  });
 }
 
 // ---------- mastery panel ----------
@@ -228,42 +327,54 @@ function computerPicks() {
 }
 
 // ---------- the reveal ----------
+// Duel: name the chooser and the round's winner, then hand off to showReveal.
 function renderReveal() {
   const r = game.reveal;
   const stat = statByKey(r.stat);
-  const cardA = renderCard(r.a, data.stats, { statKeys: game.config.statKeys, revealed: true, face: settings.face });
-  const cardB = renderCard(r.b, data.stats, { statKeys: game.config.statKeys, revealed: true, face: settings.face });
-  for (const card of [cardA, cardB]) {
-    card.querySelector(`li[data-stat="${r.stat}"]`)?.classList.add("winning");
-  }
-  $("reveal-seat-a").textContent = nameOf(0);
-  $("reveal-seat-b").textContent = nameOf(1);
-  $("reveal-a").replaceChildren(cardA);
-  $("reveal-b").replaceChildren(cardB);
-
-  $("reveal-stat").textContent = `${nameOf(r.chooser)} chose ${stat.label}` +
-    (game.config.directionToken ? ` — ${r.direction === "high" ? "highest" : "lowest"} wins` : "");
-
-  let outcome;
-  if (r.winner === null) outcome = "Tie — both cards go to the pot.";
-  else if (hotseat()) outcome = `${nameOf(r.winner)} takes the round.`;
-  else outcome = r.winner === 0 ? "You take the round." : "Opponent takes the round.";
-  $("reveal-outcome").textContent = outcome;
-
   // The one explanation line (kickoff §2): trend right, trends conflict,
   // or an upset. Only reviewed exception reasons ever reach the screen.
   const why = explain(r, stat, data.exceptions);
   gameTally = Mastery.recordReveal(gameTally, r, why.upset, 0);
+  let outcome;
+  if (r.winner === null) outcome = "Tie — both cards go to the pot.";
+  else if (hotseat()) outcome = `${nameOf(r.winner)} takes the round.`;
+  else outcome = r.winner === 0 ? "You take the round." : "Opponent takes the round.";
+  showReveal(r, why, {
+    header: `${nameOf(r.chooser)} chose ${stat.label}` +
+            (game.config.directionToken ? ` — ${r.direction === "high" ? "highest" : "lowest"} wins` : ""),
+    outcome, seatA: nameOf(0), seatB: nameOf(1),
+  });
+}
+
+// Shared by Duel and Call: both cards face up, the winning stat lit, the
+// explanation line and the upset badge.
+function showReveal(r, why, { header, outcome, seatA, seatB }) {
+  const cardA = renderCard(r.a, data.stats, { statKeys: game.config.statKeys, revealed: true, face: settings.face });
+  const cardB = renderCard(r.b, data.stats, { statKeys: game.config.statKeys, revealed: true, face: settings.face });
+  for (const card of [cardA, cardB]) {
+    card.querySelector(`li[data-stat="${r.stat}"]`)?.classList.add("winning");
+    card.classList.toggle("upset", why.upset);
+  }
+  $("reveal-seat-a").textContent = seatA;
+  $("reveal-seat-b").textContent = seatB;
+  $("reveal-a").replaceChildren(cardA);
+  $("reveal-b").replaceChildren(cardB);
+  $("reveal-stat").textContent = header;
+  $("reveal-outcome").textContent = outcome;
   $("reveal-line").textContent = why.line;
   $("reveal-line").dataset.case = why.case;
   $("upset-badge").hidden = !why.upset;
-  for (const card of [cardA, cardB]) card.classList.toggle("upset", why.upset);
   show("reveal");
   $("continue").focus();
 }
 
 function onContinue() {
   if (game.phase !== "reveal") return;
+  if (game.mode === "call") {
+    game = continueCall(game, opponentRng, Date.now());
+    if (game.phase === "over") return renderEnd();
+    return renderCall();
+  }
   game = continueGame(game);
   if (game.phase === "over") return renderEnd();
   renderBoard();
@@ -271,14 +382,20 @@ function onContinue() {
 
 // ---------- the end ----------
 function renderEnd() {
-  const [a, b] = score(game);
-  let headline;
-  if (game.winner === "draw") headline = "It's a draw.";
-  else if (hotseat()) headline = `${nameOf(game.winner)} wins!`;
-  else headline = game.winner === 0 ? "You win!" : "Opponent wins.";
+  let headline, detail;
+  if (game.mode === "call") {
+    const s = callScore(game);
+    headline = `${s.correct} of ${s.rounds} calls correct.`;
+    detail = `${s.won} cards won, ${s.missed} missed (${game.endReason}).`;
+  } else {
+    const [a, b] = score(game);
+    if (game.winner === "draw") headline = "It's a draw.";
+    else if (hotseat()) headline = `${nameOf(game.winner)} wins!`;
+    else headline = game.winner === 0 ? "You win!" : "Opponent wins.";
+    detail = `${nameOf(0)} ${a} cards, ${nameOf(1)} ${b} cards after ${game.round - 1} rounds (${game.endReason}).`;
+  }
   $("end-headline").textContent = headline;
-  $("end-detail").textContent =
-    `${nameOf(0)} ${a} cards, ${nameOf(1)} ${b} cards after ${game.round - 1} rounds (${game.endReason}).`;
+  $("end-detail").textContent = detail;
   // Fold this game into the all-time tally and offer the results string.
   gameTally = Mastery.recordGameEnd(gameTally);
   mastery = Mastery.merge(mastery, gameTally);
@@ -300,7 +417,7 @@ function renderResults() {
   const line = resultsString({
     name,
     date: localDate(),
-    preset: presetOf(settings),
+    preset: presetOf(settings) + (game.mode === "call" ? "-call" : ""),
     tally: gameTally,
     stats: game.config.statKeys.map(statByKey),
   });
@@ -337,6 +454,8 @@ function onKey(e) {
   if (screen === "board" && /^[1-9]$/.test(e.key)) {
     const key = game.config.statKeys[Number(e.key) - 1];
     if (key) humanPicks(key);
+  } else if (screen === "call" && /^[123]$/.test(e.key)) {
+    onCall(["left", "right", "tie"][Number(e.key) - 1]);
   } else if (screen === "reveal" && go) {
     e.preventDefault(); onContinue();
   } else if (screen === "curtain" && go) {
@@ -373,7 +492,7 @@ async function main() {
   $("continue").addEventListener("click", onContinue);
   $("curtain-go").addEventListener("click", liftCurtain);
   $("rematch").addEventListener("click", startGame);
-  $("to-title").addEventListener("click", () => show("title"));
+  $("to-title").addEventListener("click", () => { stopTimer(); show("title"); });
   document.addEventListener("keydown", onKey);
   show("title");
 }

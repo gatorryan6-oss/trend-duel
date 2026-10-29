@@ -446,6 +446,46 @@ def test_engine_never_touches_the_page():
         "engine.js must not import the page layer.")
 
 
+# ---------------- Phase 2: engine reused as-is, Call mode pure ----------------
+
+# SHA-256 of docs/js/engine.js at the end of Phase 1 (commit 5188d22, line
+# endings normalised to LF). Phase 2 reuses the engine AS-IS (Phase 2 kickoff
+# §2). A deliberate change means updating this pin WITH a build-log note.
+ENGINE_SHA256_PHASE1 = "32a62cfaff09d4dea3bae237e0af18259db2ae13fe3d25ec7c987a4ed41f23c2"
+CALLMODE_FILE = DOCS / "js" / "callmode.js"
+SETTINGS_JS = DOCS / "js" / "settings.js"
+
+
+def test_engine_is_unchanged_since_phase_1():
+    import hashlib
+    text = ENGINE_FILE.read_bytes().replace(b"\r\n", b"\n")
+    digest = hashlib.sha256(text).hexdigest()
+    assert digest == ENGINE_SHA256_PHASE1, (
+        "docs/js/engine.js has changed since Phase 1. Call mode must build on "
+        "the engine, not edit it. If the change is deliberate, update "
+        "ENGINE_SHA256_PHASE1 and say why in BUILDLOG.md.")
+
+
+def test_callmode_never_touches_the_page():
+    require(CALLMODE_FILE, "M6", "The Call-mode module")
+    text = CALLMODE_FILE.read_text(encoding="utf-8")
+    offenders = [f"callmode.js:{text.count(chr(10), 0, m.start()) + 1}: {name}"
+                 for name in ENGINE_FORBIDDEN
+                 for m in re.finditer(rf"\b{name}\b", text)]
+    assert not offenders, "callmode.js must be pure logic:\n  " + "\n  ".join(offenders)
+
+
+def test_settings_defaults_for_phase_2():
+    """timerSeconds is off and projector is off by default, and no preset
+    switches the timer on (Phase 2 kickoff §5)."""
+    text = SETTINGS_JS.read_text(encoding="utf-8")
+    defaults = text[text.index("export const DEFAULTS"):text.index("};", text.index("export const DEFAULTS"))]
+    assert re.search(r"timerSeconds:\s*null", defaults), "DEFAULTS.timerSeconds must be null (off)."
+    assert re.search(r"projector:\s*false", defaults), "DEFAULTS.projector must be false."
+    presets = text[text.index("export const PRESETS"):text.index("export const DEFAULTS")]
+    assert not re.search(r"timerSeconds:\s*\d", presets), "No preset may switch the timer on."
+
+
 # ---------------- (9) exceptions.json validates ----------------
 
 def test_exceptions_file_validates(elements, stats):

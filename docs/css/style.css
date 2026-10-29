@@ -343,6 +343,30 @@ details.settings summary {
 .prose th, .prose td { text-align: left; padding: .3rem .8rem .3rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
 .prose blockquote { border-left: 3px solid var(--accent); margin: .5rem 0; padding: .2rem .9rem; color: var(--ink); background: var(--paper); }
 
+/* ---------- call mode ---------- */
+.call-question { font-size: 1.25rem; font-weight: 700; margin: .4rem 0 .6rem; text-align: center; }
+.call-question b { color: var(--accent); }
+.call-table {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) 1fr minmax(200px, 280px);
+  gap: 1.25rem;
+  align-items: start;
+}
+.call-buttons { display: flex; flex-direction: column; gap: .5rem; padding-top: 1.2rem; }
+.call-btn { text-align: left; font-size: 1.1rem; }
+.call-timer {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.call-timer[data-urgent="true"] { color: #b4420e; }
+@media (max-width: 760px) {
+  .call-table { grid-template-columns: 1fr 1fr; }
+  .call-buttons { grid-column: 1 / -1; padding-top: 0; }
+}
+
 /* ---------- hotseat curtain ---------- */
 .curtain {
   min-height: 60vh;

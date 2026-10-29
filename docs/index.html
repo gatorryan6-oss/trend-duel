@@ -35,6 +35,7 @@
           <legend>Play against</legend>
           <label><input type="radio" name="mode" value="computer"> the computer</label>
           <label><input type="radio" name="mode" value="hotseat"> a classmate on this screen (hotseat)</label>
+          <label><input type="radio" name="mode" value="call"> Call mode: both cards up, you call the winner</label>
           <label class="row">Opponent
             <select name="opponent">
               <option value="random">Random</option>
@@ -57,6 +58,8 @@
           <legend>Rounds</legend>
           <label><input type="checkbox" name="directionToken"> Direction token (highest / lowest wins)</label>
           <label class="row">Round cap <input type="number" name="roundCap" min="1" max="42"></label>
+          <label><input type="checkbox" name="timerOn"> Call-mode timer</label>
+          <label class="row">Seconds per call <input type="number" name="timerSeconds" min="3" max="60"></label>
         </fieldset>
         <div class="settings-actions">
           <button type="button" data-apply-preset="cp">Reset to CP</button>
@@ -96,6 +99,24 @@
       </div>
       <div class="seat"><div class="seat-label">Their card</div><div id="their-card" class="slot"></div></div>
     </div>
+  </section>
+
+  <section data-screen="call" class="board" hidden>
+    <div class="strip">
+      <span class="score">Correct <b id="call-correct">0</b> of <b id="call-rounds">0</b></span>
+      <span id="call-round" class="round"></span>
+      <span class="score"><b id="call-won">0</b> cards won</span>
+    </div>
+    <div id="call-direction" class="direction" hidden></div>
+    <p id="call-question" class="call-question"></p>
+    <div class="call-table">
+      <div class="seat"><div class="seat-label">Left</div><div id="call-left" class="slot"></div></div>
+      <div class="call-buttons" id="call-buttons">
+        <div id="call-timer" class="call-timer" hidden></div>
+      </div>
+      <div class="seat"><div class="seat-label">Right</div><div id="call-right" class="slot"></div></div>
+    </div>
+    <p class="hint small">Keys 1, 2, 3 call Left, Right, Tie.</p>
   </section>
 
   <section data-screen="curtain" class="curtain" hidden>

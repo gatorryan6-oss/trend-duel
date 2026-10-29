@@ -35,15 +35,19 @@ export const PRESETS = {
   },
 };
 
+export const MODES = ["computer", "hotseat", "call"];
+
 export const DEFAULTS = {
   base: "cp",              // the preset these settings grew from (sets the accent)
-  mode: "computer",        // "computer" | "hotseat"
+  mode: "computer",        // "computer" | "hotseat" | "call"
   opponent: "random",      // "random" | "trend" | "greedy"
   allowGreedy: false,
   statKeys: PRESETS.cp.toggles.statKeys,
   face: "valence",         // "valence" | "econf"
   directionToken: false,
   roundCap: 20,
+  timerSeconds: null,      // Call mode clock: null = off, else 3-60 (Phase 2)
+  projector: false,        // big-type layout for the projector (Phase 2 M8)
   ...PRESETS.cp.toggles,
 };
 
@@ -75,6 +79,11 @@ export function validate(settings) {
   const bad = settings.statKeys.filter(k => !ALL_STATS.includes(k));
   if (bad.length) return `Unknown stat: ${bad.join(", ")}.`;
   if (!(settings.roundCap >= 1 && settings.roundCap <= 42)) return "Round cap must be 1–42.";
+  if (!MODES.includes(settings.mode)) return `Unknown mode "${settings.mode}".`;
+  const t = settings.timerSeconds;
+  if (t !== null && t !== undefined && !(Number.isFinite(t) && t >= 3 && t <= 60)) {
+    return "The timer must be 3–60 seconds, or off.";
+  }
   if (settings.mode === "computer" && settings.opponent === "greedy" && !settings.allowGreedy) {
     return "Greedy is switched off for this deck. Allow it in settings or pick another opponent.";
   }
