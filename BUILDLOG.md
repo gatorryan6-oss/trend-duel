@@ -27,11 +27,11 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** nothing scheduled — wait for the human. Phase 3 candidates
-  (Phase 2 spec §6): Honors deck extension (3d block, electron affinity,
-  ionic radius + exceptions pass), offline service worker with a versioned
-  cache and a visible update line, sound/animation polish, optional Flask
-  score server consuming the teacher table's shape.
+- **Next up:** Phase 3 kickoff DRAFTED, awaiting the human's approval —
+  `trend_duel_phase3_kickoff.md` (2026-10-30): Honors deck extension (Sc-Zn,
+  electron affinity, ionic radius), milestones M9-M11. Sizing measured from
+  mendeleev 1.3.0 before drafting is recorded in the spec's header. Nothing
+  built yet.
 - **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
   flipped to reviewed:true — the game shows the generic upset line until he
   flips them. Helium's valence_e is 8 by the kickoff's locked column rule
