@@ -6,7 +6,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { narrow, MAIN_BLOCKS } from "../../docs/js/data.js";
-import { ALL_STATS } from "../../docs/js/settings.js";
+// The Phase 1 stats, which these tests were written against.
+const PHASE1_STATS = ["radius_pm", "ie1_kjmol", "en_pauling", "mass", "valence_e"];
 
 import { newGame, chooseStat, continueGame, playableStats, resolve,
          score, makeRng, shuffle, topCard } from "../../docs/js/engine.js";
@@ -14,8 +15,8 @@ import { newGame, chooseStat, continueGame, playableStats, resolve,
 const here = dirname(fileURLToPath(import.meta.url));
 const allElements = JSON.parse(readFileSync(join(here, "../../docs/data/elements.json"), "utf8"));
 const allStats = JSON.parse(readFileSync(join(here, "../../docs/data/stats.json"), "utf8"));
-// The deck the game plays until the M11 deck setting: main-group cards, Phase 1 stats.
-const { elements, stats } = narrow({ elements: allElements, stats: allStats }, MAIN_BLOCKS, ALL_STATS);
+// The Phase 1 deck: main-group cards, Phase 1 stats.
+const { elements, stats } = narrow({ elements: allElements, stats: allStats }, MAIN_BLOCKS, PHASE1_STATS);
 const bySymbol = Object.fromEntries(elements.map(e => [e.symbol, e]));
 
 test("the deck is dealt evenly and nothing is lost", () => {

@@ -567,6 +567,36 @@ def test_settings_defaults_for_phase_2():
     assert not re.search(r"timerSeconds:\s*\d", presets), "No preset may switch the timer on."
 
 
+def test_cp_preset_unchanged_and_honors_deck_for_phase_3():
+    """Phase 3 §5 invariant 7: the CP preset plays the main-group deck with its
+    four Phase 1 stats; Honors plays main+3d. Old saves load as "main"."""
+    text = SETTINGS_JS.read_text(encoding="utf-8")
+    presets = text[text.index("export const PRESETS"):text.index("export const DEFAULTS")]
+    cp = presets[presets.index("cp:"):presets.index("honors:")]
+    honors = presets[presets.index("honors:"):]
+    assert re.search(r'deck:\s*"main"', cp), "The CP preset's deck must be \"main\"."
+    keys = re.search(r"statKeys:\s*\[([^\]]*)\]", cp).group(1)
+    assert re.findall(r'"(\w+)"', keys) == ["radius_pm", "ie1_kjmol", "en_pauling", "valence_e"], (
+        "The CP preset's stat keys must stay radius, ionization energy, electronegativity, valence.")
+    assert re.search(r'deck:\s*"main\+3d"', honors), "The Honors preset's deck must be \"main+3d\"."
+    defaults = text[text.index("export const DEFAULTS"):text.index("};", text.index("export const DEFAULTS"))]
+    assert re.search(r'deck:\s*"main"', defaults), "DEFAULTS.deck must be \"main\" (old saves)."
+
+
+def test_every_page_loads_the_startup_guard_first():
+    """A module that fails to load leaves a blank page with no message; the
+    startup guard turns that into a banner (Phase 3 M11, 'make silent failures
+    loud'). It must be a plain script that comes before the page's module."""
+    for page in sorted(DOCS.glob("*.html")):
+        text = page.read_text(encoding="utf-8")
+        module = text.find('type="module"')
+        if module < 0:
+            continue
+        guard = text.find('<script src="js/startup_guard.js"></script>')
+        assert 0 <= guard < module, (
+            f"{rel(page)} must load js/startup_guard.js (a plain script) before its module.")
+
+
 TEACHER_JS = DOCS / "js" / "teacher.js"
 TEACHER_HTML = DOCS / "teacher.html"
 

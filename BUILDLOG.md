@@ -18,11 +18,12 @@ Entry format:
 
 ## Current state
 
-- **PHASE 3 IN PROGRESS** — spec `trend_duel_phase3_kickoff.md`, approved by
-  the human 2026-10-31. M9 (data) shipped and its review gate was cleared by
-  the human 2026-10-31. M10 (predictor + exception families) shipped
-  2026-10-31; **M10 checkpoint: the family list (data/EXCEPTION_FAMILIES.md)
-  is in the human's hands.**
+- **PHASE 3 COMPLETE (2026-10-31) — STOPPED, awaiting the human's
+  confirmation before Phase 4.** Spec `trend_duel_phase3_kickoff.md`; M9 data,
+  M10 predictor + exception families, M11 Honors deck in play — all shipped
+  and pushed. Still to be confirmed by the human (M11 checkpoint): an Honors
+  Duel and Call game on a laptop, one projected, a CP game unchanged, and the
+  live URL on a school Chromebook.
 - **Phase 2 complete (2026-10-28).** Spec `trend_duel_phase2_kickoff.md`; M6 Call
   mode, M7 teacher page, M8 projector layout all shipped and pushed (Pages
   redeploys on each push). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
@@ -31,11 +32,10 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** M11 (deck setting, Honors preset with 52 cards and six
-  stats, d-block card face in play, teacher page ea/ionic columns, About page,
-  keys 1-6, projector check). Until then the game page plays
-  `narrow(data, MAIN_BLOCKS, ALL_STATS)`: the 3d cards and the two new stats
-  are gallery-only. The exceptions build now covers all 52 cards and 7 stats.
+- **Next up:** nothing until the human confirms Phase 3. Phase 4 candidates
+  (spec §6): the 4d block, an offline service worker with a versioned cache
+  (also the real fix for the deploy-cache window), sound/animation polish,
+  an optional Flask score server.
 - **Still the teacher's:** exceptions.json has 209 entries in 29 families,
   0 reviewed. He approves a family with `python tools/review_family.py
   <family>` (the only tool that sets the flag); the game shows the generic
@@ -50,7 +50,7 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 35 passed, 0 skipped. `npm test`: 72 tests pass;
+  parsed). pytest: 37 passed, 0 skipped. `npm test`: 78 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
@@ -64,6 +64,41 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-31 — M11: The Honors deck in play (Phase 3) — PHASE 3 COMPLETE
+- Shipped: settings `deck` ("main" | "main+3d"; DEFAULTS and old saves load
+  "main"); the Honors preset is 52 cards with radius, IE, EN, electron
+  affinity, ionic radius, mass (ALL_STATS reordered so presets round-trip
+  through the form). Duel and Call deal `deckCards(elements, settings.deck)`;
+  the engine is byte-identical (hash pin unchanged). Settings form has a Deck
+  choice; keys 1-6 work. Teacher page learns `ea` / `ionic` labels and order.
+  About page: Honors deck, EA and ionic-radius sources, undefined cells and
+  why, a live ion list (js/about.js), the predictor's group and anion rules,
+  "why the 3d metals bend the trends" (numbers from the game's own data).
+  Projector: card mini table 80% and tighter stat rows so a six-row card fits
+  at 1366x768 (card bottom 746 of 768 px; the reveal fits with no scroll).
+  Browser-checked: CP title/board identical (21/21, same 5 checkboxes and
+  mastery rows, 4 stats, keys 1-4); Honors Duel 26/26 with d-block cards
+  winning and losing; Honors Call with d-block cards; About ion list (52);
+  teacher table with ea/ionic. verify.py PASS; pytest 37; npm test 78.
+  docs/ about 216 KB.
+- Deferred: the human's M11 checkpoint (laptop games, projector, Chromebook).
+- Open bugs: none new. Deploy-cache window (logged at M10) still stands;
+  it is now LOUD instead of blank — see decision (3).
+- Decisions: (1) CP sees no difference: the two Phase 3 stats are hidden
+  from the settings checkboxes and mastery rows unless the 3d deck is chosen,
+  the stat is in use, or it has a mastery tally (EXTENSION_STATS); the
+  gallery's CP view also leaves them out. The only new thing on a CP screen
+  is the Deck choice inside Settings and the Honors button's longer text.
+  (2) Phase 1 JS tests now pin an explicit PHASE1_STATS list instead of
+  borrowing ALL_STATS. (3) Found while testing: a stale cached module made
+  the title page go BLANK with no message (a link error before any app code
+  runs). New js/startup_guard.js, a plain script on every page, shows "could
+  not start... reload" for load/link failures during startup only; proven
+  with a temporary page importing a missing export (page deleted). An
+  invariant requires it before every page's module. (4) The "why the 3d
+  metals bend" paragraph is Claude's draft prose on a student-facing page;
+  flagged for the teacher's read.
 
 ## 2026-10-31 — M10: The predictor and the exception families (Phase 3)
 - Shipped: trend.js measures "across" by IUPAC group; lines say "column" for

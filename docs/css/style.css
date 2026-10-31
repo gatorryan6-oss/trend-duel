@@ -343,6 +343,10 @@ details.settings summary {
 .prose h2 { margin-top: 1.6rem; }
 .prose table { border-collapse: collapse; margin: .5rem 0 1rem; }
 .prose th, .prose td { text-align: left; padding: .3rem .8rem .3rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.ion-list { columns: 4 9rem; column-gap: 1.5rem; list-style: none; padding: 0; margin: .5rem 0 1rem; font-variant-numeric: tabular-nums; }
+.ion-list li { break-inside: avoid; padding: .1rem 0; }
+.ion-list b { display: inline-block; min-width: 2em; }
+.ion-list .undefined { color: var(--muted); font-style: italic; }
 .prose blockquote { border-left: 3px solid var(--accent); margin: .5rem 0; padding: .2rem .9rem; color: var(--ink); background: var(--paper); }
 
 /* ---------- call mode ---------- */
@@ -398,6 +402,10 @@ html.projector .preset-row { max-width: 60rem; }
 html.projector .mini .cell.lit { box-shadow: 0 0 0 2px var(--lit); }
 html.projector .explain { font-size: 1.1rem; }
 html.projector .call-question { font-size: 1.5rem; }
+/* Phase 3: the Honors card carries six stat rows; at 1366x768 a slightly
+   smaller mini table and tighter rows keep the whole card on screen. */
+html.projector .card .mini { width: 80%; }
+html.projector .stats li { padding: .04rem 0; }
 
 /* ---------- hotseat curtain ---------- */
 .curtain {

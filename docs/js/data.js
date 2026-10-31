@@ -15,9 +15,8 @@ async function fetchJson(path) {
 }
 
 // The part of the data a page plays with: only cards from `blocks`, only the
-// stats in `statKeys`. Pure, so the Node tests and the exceptions build use
-// the same view the game page does. Until M11's deck setting, the game plays
-// MAIN_BLOCKS with the Phase 1 stats.
+// stats in `statKeys`. Pure, so the Node tests can use the same view a page
+// does. The gallery's CP filter uses it; the game deals by settings.deck.
 export function narrow(data, blocks, statKeys) {
   return {
     ...data,

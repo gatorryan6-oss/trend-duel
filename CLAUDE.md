@@ -71,10 +71,20 @@ you're trying to do, the test is right until the human says otherwise.
 - **Undefined is `null`, never 0, never omitted** — and every null is
   documented in `SOURCES.md` as `- undefined \`stat\`: Sym, Sym` (the test
   parses that exact shape, both directions).
-- **The deck is frozen at the 42 main-group elements of periods 1–6** for
-  Phase 1. The d-block is Phase 2.
-- **`column` is 1–8** (main-group column; the d-block gap carries no weight).
-  H is column 1, He is column 8. `valence_e == column` for every card.
+- **The deck is frozen at the 42 main-group elements of periods 1–6 plus
+  the ten 3d metals Sc–Zn** (Phase 3). CP plays deck `"main"` (42 cards, its
+  Phase 1 stats, unchanged); Honors plays `"main+3d"` (52 cards, six stats).
+  The UI filters cards by `settings.deck` before dealing; the engine never
+  knows about decks.
+- **`column` is 1–8** for main-group cards (the d-block gap carries no
+  weight) and **null for d-block cards**. H is column 1, He is column 8.
+  `valence_e == column` for every main-group card; null for d-block.
+- **The predictor measures "across" by IUPAC group** (same order as column
+  for main-group pairs); ionic radius is `anion_first`. Every exception
+  belongs to exactly one family in `tools/exception_reasons.json`; only the
+  teacher's `tools/review_family.py` sets `reviewed: true`.
+- **Every page loads `js/startup_guard.js` (a plain script) before its
+  module**, so a module that fails to load shows a banner, not a blank page.
 - **Adding a stat = one record in `stats.json` + one column in the build
   script.** Nothing else.
 - **The results string is a frozen contract** (kickoff §5, `TD1|...`). Phase
@@ -97,7 +107,9 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   js/mastery.js            per-stat tally, localStorage td1.mastery.v1 (M5)
   js/results.js            the FROZEN TD1 results string + parser (M5)
   js/callmode.js           Call mode rules, pure, built on the engine (Phase 2 M6)
-  about.html  gallery.html  sources/standards page; the deck gallery
+  about.html  gallery.html  sources/standards page; the deck gallery (CP/Honors filter)
+  js/about.js              fills About's ion table from elements.json (Phase 3 M11)
+  js/startup_guard.js      plain script: banner if a module fails to load (Phase 3 M11)
   teacher.html js/teacher.js  paste TD1 lines -> class table; ONE parser (results.js) (Phase 2 M7)
   js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)

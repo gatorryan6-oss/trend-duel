@@ -5,7 +5,7 @@
 // can link straight to the Honors view with gallery.html#honors.
 import { renderCard } from "./cards.js";
 import { loadData, narrow, MAIN_BLOCKS } from "./data.js";
-import { ALL_STATS, PRESETS } from "./settings.js";
+import { ALL_STATS, EXTENSION_STATS, PRESETS } from "./settings.js";
 
 function showError(message) {
   const banner = document.createElement("div");
@@ -14,9 +14,11 @@ function showError(message) {
   document.querySelector("main").prepend(banner);
 }
 
-// What each filter shows. Honors is simply everything in the data files.
+// What each filter shows. Honors is simply everything in the data files;
+// CP is the main-group deck without the Phase 3 stats, as it always was.
 function viewOf(data, deck) {
-  return deck === "honors" ? data : narrow(data, MAIN_BLOCKS, ALL_STATS);
+  if (deck === "honors") return data;
+  return narrow(data, MAIN_BLOCKS, ALL_STATS.filter(k => !EXTENSION_STATS.includes(k)));
 }
 
 function draw(data, deck) {

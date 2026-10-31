@@ -4,10 +4,10 @@
 import { newGame, chooseStat, continueGame, playableStats, score, topCard, makeRng }
   from "./engine.js";
 import { renderCard, renderCardBack } from "./cards.js";
-import { loadData, narrow, MAIN_BLOCKS } from "./data.js";
+import { loadData } from "./data.js";
 import { OPPONENTS } from "./opponents.js";
 import { explain } from "./trend.js";
-import { PRESETS, ALL_STATS, applyPreset, presetOf, validate, toConfig, load, save }
+import { PRESETS, ALL_STATS, EXTENSION_STATS, deckCards, applyPreset, presetOf, validate, toConfig, load, save }
   from "./settings.js";
 import { resultsString, localDate, cleanName } from "./results.js";
 import * as Mastery from "./mastery.js";
@@ -60,6 +60,7 @@ function showError(message) {
 function fillForm() {
   const f = $("settings-form");
   f.elements.mode.value = settings.mode;
+  f.elements.deck.value = settings.deck;
   f.elements.opponent.value = settings.opponent;
   f.elements.allowGreedy.checked = settings.allowGreedy;
   f.elements.face.value = settings.face;
@@ -74,6 +75,7 @@ function fillForm() {
   applyProjector();
   for (const box of f.querySelectorAll("input[name=stat]")) {
     box.checked = settings.statKeys.includes(box.value);
+    box.parentElement.hidden = !showsStat(box.value);
   }
   const greedyOption = f.elements.opponent.querySelector("option[value=greedy]");
   greedyOption.disabled = !settings.allowGreedy;
@@ -84,6 +86,16 @@ function fillForm() {
   $("settings-problem").textContent = problem || "";
   $("start").disabled = Boolean(problem);
   document.documentElement.style.setProperty("--accent", PRESETS[settings.base].accent);
+  if (mastery) renderMastery();
+}
+
+// The Phase 3 stats stay out of a CP player's views (checkboxes, mastery
+// rows) unless the 3d deck is chosen or the stat is actually in use, so a CP
+// screen looks exactly as it did before Phase 3.
+function showsStat(key) {
+  if (!EXTENSION_STATS.includes(key)) return true;
+  const t = mastery && mastery.byStat[key];
+  return settings.deck === "main+3d" || settings.statKeys.includes(key) || Boolean(t && t.chosen);
 }
 
 function readForm() {
@@ -93,6 +105,7 @@ function readForm() {
   settings = {
     ...settings,
     mode: f.elements.mode.value,
+    deck: f.elements.deck.value,
     opponent: f.elements.opponent.value,
     allowGreedy: f.elements.allowGreedy.checked,
     face: f.elements.face.value,
@@ -109,7 +122,7 @@ function readForm() {
 function buildStatBoxes() {
   const holder = $("stat-boxes");
   holder.replaceChildren();
-  for (const stat of data.stats) {
+  for (const stat of ALL_STATS.map(statByKey)) {
     const label = document.createElement("label");
     label.innerHTML = `<input type="checkbox" name="stat" value="${stat.key}"> ${stat.label}`;
     holder.appendChild(label);
@@ -143,7 +156,8 @@ function startGame() {
   stopTimer();
   gameTally = Mastery.emptyTally();
   if (settings.mode === "call") return startCallGame();
-  game = newGame(data.elements, data.stats, toConfig(settings), Date.now() >>> 0);
+  game = newGame(deckCards(data.elements, settings.deck), data.stats,
+                 toConfig(settings), Date.now() >>> 0);
   viewer = 0;
   lastPicker = null;
   renderBoard();
@@ -153,7 +167,7 @@ function startGame() {
 // Both cards face up, the stat announced, numbers hidden; the player calls
 // Left, Right or Tie before the reveal. All rules live in callmode.js.
 function startCallGame() {
-  game = newCallGame(data.elements, data.stats,
+  game = newCallGame(deckCards(data.elements, settings.deck), data.stats,
     { ...toConfig(settings), timerSeconds: settings.timerSeconds },
     Date.now() >>> 0, opponentRng, Date.now());
   renderCall();
@@ -241,7 +255,7 @@ function onCall(call) {
 function renderMastery() {
   const body = $("mastery-body");
   body.replaceChildren();
-  for (const stat of data.stats) {
+  for (const stat of ALL_STATS.filter(showsStat).map(statByKey)) {
     const t = mastery.byStat[stat.key] || { chosen: 0, won: 0 };
     const pct = t.chosen ? Math.round(100 * t.won / t.chosen) + "%" : "—";
     const tr = document.createElement("tr");
@@ -487,9 +501,7 @@ function onKey(e) {
 // ---------- wiring ----------
 async function main() {
   try {
-    // Until the M11 deck setting, the game plays the main-group cards and the
-    // Phase 1 stats only; the 3d cards and the new stats are gallery-only.
-    data = narrow(await loadData(), MAIN_BLOCKS, ALL_STATS);
+    data = await loadData();
   } catch (err) {
     showError("Trend Duel could not load its data.\n" + err.message);
     return;

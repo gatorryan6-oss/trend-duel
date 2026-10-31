@@ -8,8 +8,11 @@ import { parseResults } from "./results.js";
 
 // Canonical column order for the per-stat columns; anything unknown goes
 // after, in first-seen order.
-export const STAT_ORDER = ["radius", "ie1", "en", "mass", "valence"];
+// Same order as the game's own stat list (settings.js ALL_STATS); ea and
+// ionic arrive with the Phase 3 Honors deck.
+export const STAT_ORDER = ["radius", "ie1", "en", "ea", "ionic", "mass", "valence"];
 export const STAT_LABELS = { radius: "Radius", ie1: "Ioniz. energy", en: "Electroneg.",
+                             ea: "Electron aff.", ionic: "Ionic radius",
                              mass: "Mass", valence: "Valence e⁻" };
 
 // "honors-call" -> { preset: "honors", mode: "Call" }; "cp" -> Duel.

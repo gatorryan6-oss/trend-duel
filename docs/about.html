@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trend Duel — About the data</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/startup_guard.js"></script>
 </head>
 <body>
 <header class="site">
@@ -15,36 +16,48 @@
 <main class="prose">
 
 <h2>What the game is for</h2>
-<p>Every card is a main-group element from periods 1–6. Each round you pick one property and the higher value wins (or the lower one, when the direction token says so). The numbers stay hidden until the reveal, so the only way to pick well is to reason from where the element sits on the periodic table. When the simple trend fails, the reveal says so and shows the real data.</p>
+<p>Every card is an element. The CP deck is the 42 main-group elements of periods 1–6; the Honors deck adds the ten 3d metals, scandium to zinc, for 52 cards. Each round you pick one property and the higher value wins (or the lower one, when the direction token says so). The numbers stay hidden until the reveal, so the only way to pick well is to reason from where the element sits on the periodic table. When the simple trend fails, the reveal says so and shows the real data.</p>
 
 <h2>Where the numbers come from</h2>
 <p>All values were generated once from the <code>mendeleev</code> Python package (version 1.3.0) and committed with the game; nothing is looked up while you play. Each dataset below is the one that package documents for the field used.</p>
 <table>
   <tr><th>Stat</th><th>Dataset</th><th>Source</th></tr>
-  <tr><td>Atomic radius (pm)</td><td>Covalent radii, Cordero et al.</td><td>Cordero, Gómez, Platero-Prats, Revés, Echeverría, Cremades, Barragán, Alvarez, “Covalent radii revisited”, <i>Dalton Trans.</i> 2008, 2832–2838, doi:10.1039/b801115j. Rounded to the nearest picometre.</td></tr>
+  <tr><td>Atomic radius (pm)</td><td>Covalent radii, Cordero et al.</td><td>Cordero, Gómez, Platero-Prats, Revés, Echeverría, Cremades, Barragán, Alvarez, “Covalent radii revisited”, <i>Dalton Trans.</i> 2008, 2832–2838, doi:10.1039/b801115j. Rounded to the nearest picometre. For Mn, Fe and Co the package gives the average of the low-spin and high-spin values.</td></tr>
   <tr><td>Ionization energy (kJ/mol)</td><td>First ionization energy, NIST</td><td>NIST Atomic Spectra Database (ver. 5.11). The package stores eV; the game converts at 96.485 kJ/mol per eV and rounds to one decimal.</td></tr>
   <tr><td>Electronegativity</td><td>Pauling scale, CRC Handbook</td><td>W. M. Haynes (ed.), <i>CRC Handbook of Chemistry and Physics</i>, 95th ed., 2014.</td></tr>
+  <tr><td>Electron affinity (kJ/mol)</td><td>Electron affinity, CRC Handbook</td><td>W. M. Haynes (ed.), <i>CRC Handbook of Chemistry and Physics</i>, 95th ed., 2014. Shown as energy <b>released</b> when the atom gains an electron (positive = released), converted from eV like ionization energy.</td></tr>
+  <tr><td>Ionic radius (pm)</td><td>Effective ionic radii, Shannon</td><td>R. D. Shannon, <i>Acta Cryst.</i> A 32 (1976) 751–767. One ion per card (the table below), six-coordinate, high spin where both spins are listed. Stored exactly as listed (several end in .5) and shown to the nearest picometre; the game compares the stored values, so rounding never creates a tie.</td></tr>
   <tr><td>Atomic mass (u)</td><td>Standard atomic weights, IUPAC-CIAAW</td><td>Meija et al., “Atomic weights of the elements 2013”, <i>Pure Appl. Chem.</i> 88(3), 2016, doi:10.1515/pac-2015-0305, and the IUPAC-CIAAW standard atomic weights. Conventional values for elements with ranges; the longest-lived isotope's mass number for Po, At and Rn.</td></tr>
   <tr><td>Valence electrons</td><td>Definition</td><td>Equal to the main-group column (1–8). Not a measurement.</td></tr>
 </table>
-<p>Ten values were checked by hand against independent reference tables, and the data build fails if any of them drift. The list is in <code>data/SOURCES.md</code> in the project repository.</p>
+<p>Twenty values were checked by hand against independent reference tables, and the data build fails if any of them drift. The list is in <code>data/SOURCES.md</code> in the project repository.</p>
 
 <h2>Why your textbook may disagree</h2>
-<p>Different books compile different measurements: covalent radii from different bond sets, ionization energies rounded differently, older electronegativity tables. The game only ever uses the <b>order</b> of two values, and the order almost never changes between compilations. Where it does, that is exactly the kind of pair the reveal flags as an upset.</p>
+<p>Different books compile different measurements: covalent radii from different bond sets, ionization energies rounded differently, older electronegativity tables, ionic radii for a different coordination number. The game only ever uses the <b>order</b> of two values, and the order almost never changes between compilations. Where it does, that is exactly the kind of pair the reveal flags as an upset.</p>
 
 <h2>Cells that say “undefined”</h2>
 <ul>
   <li><b>Atomic radius for the six noble gases.</b> Noble-gas radii are measured on a different basis from the rest of the table and are not comparable, so the game refuses to rank them rather than teach an artifact. A card with no value cannot choose that stat, and loses the round if the other player does.</li>
   <li><b>Electronegativity for He, Ne, Ar, Kr and Rn.</b> These gases form no ordinary bonds, so the Pauling scale assigns them no value. Xenon does have a Pauling value in this dataset, from its few compounds with fluorine and oxygen, and keeps it.</li>
+  <li><b>Electron affinity for He, Be, N, Ne, Mg, Ar, Kr, Xe, Rn, Mn and Zn.</b> None of these forms a stable negative ion. For six of them the dataset has no value. For He, Be, N, Ar and Xe it lists a negative number, which the package documentation says belongs to a short-lived (metastable) ion; comparing that with ordinary electron affinities would teach the wrong thing, so the game treats it as undefined.</li>
+  <li><b>Ionic radius for H, C, N, Si, P, As, Po, At and the six noble gases.</b> These have no common simple ion with a six-coordinate radius in Shannon's table (nitride, N³⁻, is listed only for four neighbours).</li>
+  <li><b>Valence electrons for the 3d metals.</b> “Valence electrons equal the column” is a main-group rule, and a d-block element has no main-group column.</li>
 </ul>
 
+<h2>The ion on each card</h2>
+<p>Ionic radius needs one ion per element. These are the ones the game uses, with the radius a card shows.</p>
+<div id="ion-table" class="ion-table" aria-live="polite">Loading…</div>
+
 <h2>How the reveal decides what to say</h2>
-<p>A simple predictor reads only each card's period and column and applies the textbook rules: radius rises going down and falls going right; ionization energy and electronegativity do the opposite; mass rises with atomic number; valence electrons equal the column. Then it compares its guess with the data.</p>
+<p>A simple predictor reads only each card's period and group and applies the textbook rules: radius rises going down and falls going right; ionization energy, electronegativity and electron affinity do the opposite; mass rises with atomic number; valence electrons equal the column. For ionic radius one rule comes first: an anion is larger than a cation. Then it compares its guess with the data.</p>
 <ul>
-  <li><b>Trend predicts and is right</b> — the line names the rule and the columns or periods involved.</li>
+  <li><b>Trend predicts and is right</b> — the line names the rule and the columns (or, once a 3d metal is involved, the groups) or periods.</li>
   <li><b>Trends conflict</b> — one card is down-and-right or up-and-left of the other, so the two rules disagree. The line says so and lets the data decide.</li>
   <li><b>Upset</b> — the trend predicted the other card. The card gets an upset badge. A chemical reason appears only after the teacher has reviewed it; until then the line simply says the pair breaks the simple trend.</li>
 </ul>
+
+<h2>Why the 3d metals bend the trends</h2>
+<p>Across the 3d row each added electron goes into the inner 3d subshell, while the outer 4s electrons stay put (two of them, or one for chromium and copper, whose configurations [Ar] 3d5 4s and [Ar] 3d10 4s are printed on their cards). Inner d electrons shield the outer ones from much of each added proton, so the outer electrons feel only a slowly growing pull. In this game's data, first ionization energy rises only from 633 kJ/mol (Sc) to 906 kJ/mol (Zn) across ten elements, while across the six p-block elements from Al to Cl it more than doubles, from 578 to 1251 kJ/mol. With steps that small, other effects — pairing electrons, full and half-full subshells, and how the dataset treats spin states — often decide a pair, and the reveal calls it an upset. The effect reaches past the row, too: gallium's radius (122 pm) is no smaller than aluminum's (121 pm), even though gallium has an extra shell.</p>
 
 <h2>Mastery and privacy</h2>
 <p>The mastery panel and your settings are stored in this browser only (localStorage). Nothing is sent anywhere, and the game makes no network requests after the page loads. The “Copy results” line contains the first name you type and nothing else about you; it is meant for pasting into a Google Classroom question.</p>
@@ -52,8 +65,9 @@
 <h2>Standard</h2>
 <p>Massachusetts 2016 Science and Technology/Engineering Curriculum Framework, high school chemistry, HS-PS1-1 (framework p. 85):</p>
 <blockquote>Use the periodic table as a model to predict the relative properties of main group elements, including ionization energy and relative sizes of atoms and ions, based on the patterns of electrons in the outermost energy level of each element. Use the patterns of valence electron configurations, core charge, and Coulomb's law to explain and predict general trends in ionization energies, relative sizes of atoms and ions, and reactivity of pure elements.</blockquote>
-<p>State assessment boundary: limited to main group (s and p block) elements — which is exactly the Phase 1 deck.</p>
+<p>State assessment boundary: limited to main group (s and p block) elements — which is exactly the CP deck. The Honors deck's 3d metals go beyond that boundary on purpose.</p>
 
 </main>
+<script type="module" src="js/about.js"></script>
 </body>
 </html>

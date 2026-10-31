@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trend Duel</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/startup_guard.js"></script>
 </head>
 <body>
 <header class="site">
@@ -24,7 +25,7 @@
       </button>
       <button type="button" class="preset" data-preset="honors" aria-label="Play the Honors deck">
         <strong>Honors</strong>
-        <span>Radius · Ionization energy · Electronegativity · Atomic mass · direction token on</span>
+        <span>52 cards with the 3d metals · Radius · Ionization energy · Electronegativity · Electron affinity · Ionic radius · Atomic mass · direction token on</span>
       </button>
     </div>
 
@@ -44,6 +45,11 @@
             </select>
           </label>
           <label><input type="checkbox" name="allowGreedy"> Allow the Greedy opponent</label>
+        </fieldset>
+        <fieldset>
+          <legend>Deck</legend>
+          <label><input type="radio" name="deck" value="main"> Main-group elements (42 cards)</label>
+          <label><input type="radio" name="deck" value="main+3d"> Main-group + 3d metals Sc–Zn (52 cards)</label>
         </fieldset>
         <fieldset>
           <legend>Stats on the card</legend>

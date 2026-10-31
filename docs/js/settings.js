@@ -7,7 +7,27 @@
 
 export const SETTINGS_KEY = "td1.settings.v1";   // versioned: bump on shape change
 
-export const ALL_STATS = ["radius_pm", "ie1_kjmol", "en_pauling", "mass", "valence_e"];
+// Canonical stat order: presets list their stats in this order, so a preset
+// survives a round trip through the settings form unchanged.
+export const ALL_STATS = ["radius_pm", "ie1_kjmol", "en_pauling", "ea_kjmol",
+                          "ionic_radius_pm", "mass", "valence_e"];
+
+// The Phase 3 Honors stats. Views a CP player sees (the stat checkboxes, the
+// mastery panel) leave them out unless the 3d deck is chosen or they are in use.
+export const EXTENSION_STATS = ["ea_kjmol", "ionic_radius_pm"];
+
+// Which blocks each deck deals (Phase 3 kickoff §2). The UI filters the
+// cards before dealing; the engine is never told about decks.
+export const DECKS = {
+  "main": ["s", "p"],              // 42 cards
+  "main+3d": ["s", "p", "d"],      // 52 cards
+};
+
+export function deckCards(elements, deck) {
+  const blocks = DECKS[deck];
+  if (!blocks) throw new Error(`Unknown deck "${deck}".`);
+  return elements.filter(e => blocks.includes(e.block));
+}
 
 // The toggles each preset sets. Anything not listed here is left alone.
 export const PRESETS = {
@@ -15,6 +35,7 @@ export const PRESETS = {
     label: "CP",
     accent: "#1f6feb",
     toggles: {
+      deck: "main",
       statKeys: ["radius_pm", "ie1_kjmol", "en_pauling", "valence_e"],
       face: "valence",
       directionToken: false,
@@ -26,7 +47,9 @@ export const PRESETS = {
     label: "Honors",
     accent: "#b4420e",
     toggles: {
-      statKeys: ["radius_pm", "ie1_kjmol", "en_pauling", "mass"],
+      deck: "main+3d",                                   // Phase 3: + Sc-Zn
+      statKeys: ["radius_pm", "ie1_kjmol", "en_pauling", "ea_kjmol",
+                 "ionic_radius_pm", "mass"],
       face: "econf",
       directionToken: true,
       allowGreedy: true,
@@ -42,6 +65,7 @@ export const DEFAULTS = {
   mode: "computer",        // "computer" | "hotseat" | "call"
   opponent: "random",      // "random" | "trend" | "greedy"
   allowGreedy: false,
+  deck: "main",            // "main" | "main+3d" (Phase 3); old saves load as "main"
   statKeys: PRESETS.cp.toggles.statKeys,
   face: "valence",         // "valence" | "econf"
   directionToken: false,
@@ -78,6 +102,7 @@ export function validate(settings) {
   }
   const bad = settings.statKeys.filter(k => !ALL_STATS.includes(k));
   if (bad.length) return `Unknown stat: ${bad.join(", ")}.`;
+  if (!DECKS[settings.deck]) return `Unknown deck "${settings.deck}".`;
   if (!(settings.roundCap >= 1 && settings.roundCap <= 42)) return "Round cap must be 1–42.";
   if (!MODES.includes(settings.mode)) return `Unknown mode "${settings.mode}".`;
   const t = settings.timerSeconds;
