@@ -19,9 +19,10 @@ Entry format:
 ## Current state
 
 - **PHASE 3 IN PROGRESS** — spec `trend_duel_phase3_kickoff.md`, approved by
-  the human 2026-10-31. M9 (data) shipped 2026-10-31; **M9 review gate open:
-  the human reviews the ion table and the undefined electron-affinity cells in
-  data/SOURCES.md before M10 starts.**
+  the human 2026-10-31. M9 (data) shipped and its review gate was cleared by
+  the human 2026-10-31. M10 (predictor + exception families) shipped
+  2026-10-31; **M10 checkpoint: the family list (data/EXCEPTION_FAMILIES.md)
+  is in the human's hands.**
 - **Phase 2 complete (2026-10-28).** Spec `trend_duel_phase2_kickoff.md`; M6 Call
   mode, M7 teacher page, M8 projector layout all shipped and pushed (Pages
   redeploys on each push). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
@@ -30,14 +31,15 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** M10 (predictor on IUPAC group, column/group wording,
-  anion-first rule, exceptions with `family`, tools/review_family.py) — only
-  after the human clears the M9 review gate. Until M11's `deck` setting, the
-  game and the exceptions build both play `narrow(data, MAIN_BLOCKS,
-  ALL_STATS)`: the 3d cards and the two new stats are gallery-only.
-- **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
-  flipped to reviewed:true — the game shows the generic upset line until he
-  flips them. Helium's valence_e is 8 by the kickoff's locked column rule
+- **Next up:** M11 (deck setting, Honors preset with 52 cards and six
+  stats, d-block card face in play, teacher page ea/ionic columns, About page,
+  keys 1-6, projector check). Until then the game page plays
+  `narrow(data, MAIN_BLOCKS, ALL_STATS)`: the 3d cards and the two new stats
+  are gallery-only. The exceptions build now covers all 52 cards and 7 stats.
+- **Still the teacher's:** exceptions.json has 209 entries in 29 families,
+  0 reviewed. He approves a family with `python tools/review_family.py
+  <family>` (the only tool that sets the flag); the game shows the generic
+  upset line until then. Seven families are marked lower-confidence drafts. Helium's valence_e is 8 by the kickoff's locked column rule
   (flagged at M1; changing it means changing the rule and the invariant).
 - **Port:** 5093 (this project's own; see CLAUDE.md for the machine registry).
   The port map was read from every other project's verify.py on disk at M0
@@ -48,7 +50,7 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 33 passed, 0 skipped. `npm test`: 63 tests pass;
+  parsed). pytest: 35 passed, 0 skipped. `npm test`: 72 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
@@ -62,6 +64,43 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-31 — M10: The predictor and the exception families (Phase 3)
+- Shipped: trend.js measures "across" by IUPAC group; lines say "column" for
+  main-group pairs and "group" once a d-block card is involved ("Zn, group
+  12, beats Ca, group 2"); the anion-first rule ("Anions are larger than
+  cations: O²⁻ 140 pm vs Mg²⁺ 72 pm"); stats with show_with name the ion in
+  data lines (K⁺ 138 pm). positionScore uses group order (acrossIndex: d-block
+  slots between columns 2 and 3, main-group unchanged) and scores any anion
+  above any cation. exceptions.json rebuilt over all 52 cards and 7 stats:
+  209 entries (radius 13, IE 44, EN 27, mass 3, EA 83, ionic 39 — exactly the
+  spec's sizing), each with a `family`; 29 families drafted in
+  tools/exception_reasons.json, explicit pair lists, the 32 Phase 1 reasons
+  kept as per-pair overrides. tools/review_family.py (list / approve /
+  --unreview / --report) and data/EXCEPTION_FAMILIES.md. verify.py PASS;
+  pytest 35 passed; npm test 72 passed. docs/ 206.6 KB of 300.
+- Deferred: deck setting, Honors preset, teacher columns, About page, keys
+  1-6, projector check to M11 (per spec).
+- Open bugs: (minor, pre-existing, not a code bug) GitHub Pages lets browsers
+  cache files ~10 minutes, so a student mid-visit during a deploy can briefly
+  get old JS with new data and see the loud load-error banner until a reload
+  (seen locally as stale modules while testing). Phase 4's versioned service
+  worker is the fix; until then, deploy outside class time.
+- Decisions: (1) Family membership is EXPLICIT pair lists, not hidden rules:
+  a one-time scratch classifier proposed them and the committed JSON is the
+  source. The build fails on an unlisted pair, a pair in two families, a
+  listed pair that is no longer an upset, or a stale override. (2) A pair
+  shows its override if it has one, else the family reason; review_family
+  shows every distinct text a family would put on screen before asking.
+  (3) Seven families carry `confidence: "lower"` (radius-3d-upturn,
+  ie-3d-row-flat, en-mn-half-filled, ea-group-2-down, ea-3d-irregular,
+  ea-3d-beats-p, ionic-same-charge-3d) so the teacher reads those first.
+  (4) Invariants 5-6: the 32 Phase 1 records are frozen as a literal in the
+  test (taken before the predictor changed), and the main-group/Phase-1-stat
+  slice of exceptions.json must equal them exactly; every exception has a
+  family with a label and reason for the right stat. (5) review_family.py's
+  writer was checked byte-identical to the Node build's, so approving a
+  family never makes `--check` fail. Claude did not run it in approve mode.
 
 ## 2026-10-31 — M9: The data (Phase 3)
 - Shipped: elements.json now 52 cards (42 + Sc-Zn) with `block`, `ea_kjmol`,

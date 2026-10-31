@@ -103,10 +103,12 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   data/elements.json       42 card records (M1, generated)
   data/stats.json          stat definitions (M1, generated)
   data/exceptions.json     predictor failures + drafted reasons (M3, generated)
-data/SOURCES.md            dataset + citation per stat, ten hand-checked values (M1)
+data/SOURCES.md            dataset + citation per stat, ion table, twenty hand-checked values (M1, M9)
+data/EXCEPTION_FAMILIES.md every exception family's text and pairs, for review (M10, generated)
 tools/build_elements.py    the data build (M1) — the only thing that imports mendeleev
 tools/build_exceptions.mjs computes exceptions.json from the game's own predictor (M3)
-tools/exception_reasons.json  drafted reasons, keyed stat|A|B (M3)
+tools/exception_reasons.json  drafted reasons: one per family + per-pair overrides (M3, M10)
+tools/review_family.py     THE TEACHER'S tool: list families, approve one (sets reviewed), --report
 tools/requirements.txt     tooling deps, version-pinned
 tests/test_invariants.py   kickoff §2/§5 as checks
 tests/js/                  engine unit tests, `npm test` (M2)

@@ -23,7 +23,9 @@ tests don't. They guard:
   (7) every stats.json key has a SOURCES.md entry; every stat on a card is
       declared in stats.json,
   (8) engine.js never references document, window, or localStorage,
-  (9) exceptions.json validates against the deck and the stat keys.
+  (9) exceptions.json validates against the deck and the stat keys,
+  and Phase 3 §5's invariants 5-6: the 32 Phase 1 exception records survive
+  the 52-card rebuild, and every exception has a family with a reason.
 
 Tests whose inputs don't exist yet SKIP with a loud reason naming the
 milestone that arms them. Do not delete the skips; just build the milestones.
@@ -612,7 +614,7 @@ def test_exceptions_file_validates(elements, stats):
     keys = {s["key"] for s in stats}
     for i, x in enumerate(exceptions):
         where = f"exceptions.json[{i}]"
-        for f in ("stat", "a", "b", "predicted", "actual", "reason", "reviewed"):
+        for f in ("stat", "a", "b", "predicted", "actual", "family", "reason", "reviewed"):
             assert f in x, f"{where}: missing {f}"
         assert x["stat"] in keys, f"{where}: unknown stat {x['stat']!r}"
         assert x["a"] in symbols and x["b"] in symbols, f"{where}: not deck symbols"
@@ -624,6 +626,73 @@ def test_exceptions_file_validates(elements, stats):
         if x["reviewed"]:
             assert "(no reason drafted" not in x["reason"], (
                 f"{where}: a placeholder reason cannot be marked reviewed")
+
+
+# The 32 exception records exceptions.json held at the end of Phase 2,
+# frozen here (stat, a, b, predicted, actual) before Phase 3 touched the
+# predictor (Phase 3 §5 invariant 5).
+PHASE1_EXCEPTIONS = {
+    ("radius_pm", "As", "Se", "As", "Se"),
+    ("radius_pm", "As", "Br", "As", "Br"),
+    ("radius_pm", "Te", "I", "Te", "I"),
+    ("radius_pm", "Tl", "Pb", "Tl", "Pb"),
+    ("radius_pm", "Tl", "Bi", "Tl", "Bi"),
+    ("radius_pm", "Tl", "At", "Tl", "At"),
+    ("radius_pm", "Pb", "Bi", "Pb", "Bi"),
+    ("radius_pm", "Pb", "At", "Pb", "At"),
+    ("radius_pm", "Bi", "At", "Bi", "At"),
+    ("radius_pm", "Po", "At", "Po", "At"),
+    ("ie1_kjmol", "Be", "B", "B", "Be"),
+    ("ie1_kjmol", "N", "O", "O", "N"),
+    ("ie1_kjmol", "Mg", "Al", "Al", "Mg"),
+    ("ie1_kjmol", "Al", "Ca", "Al", "Ca"),
+    ("ie1_kjmol", "Al", "Ga", "Al", "Ga"),
+    ("ie1_kjmol", "Al", "Tl", "Al", "Tl"),
+    ("ie1_kjmol", "P", "S", "S", "P"),
+    ("ie1_kjmol", "Ca", "Ga", "Ga", "Ca"),
+    ("ie1_kjmol", "Ga", "Tl", "Ga", "Tl"),
+    ("ie1_kjmol", "As", "Se", "Se", "As"),
+    ("ie1_kjmol", "In", "Tl", "In", "Tl"),
+    ("ie1_kjmol", "Sn", "Pb", "Sn", "Pb"),
+    ("ie1_kjmol", "Pb", "Bi", "Bi", "Pb"),
+    ("en_pauling", "Al", "Ga", "Al", "Ga"),
+    ("en_pauling", "Al", "In", "Al", "In"),
+    ("en_pauling", "Al", "Tl", "Al", "Tl"),
+    ("en_pauling", "Si", "Ge", "Si", "Ge"),
+    ("en_pauling", "Si", "Sn", "Si", "Sn"),
+    ("en_pauling", "In", "Tl", "In", "Tl"),
+    ("en_pauling", "I", "Xe", "Xe", "I"),
+    ("mass", "Ar", "K", "K", "Ar"),
+    ("mass", "Te", "I", "I", "Te"),
+}
+PHASE1_STATS = {"radius_pm", "ie1_kjmol", "en_pauling", "mass"}
+
+
+def test_phase1_exceptions_survive_the_phase3_rebuild(by_symbol):
+    exceptions = load_json(EXCEPTIONS_FILE, "M3", "The exceptions list")
+    have = {(x["stat"], x["a"], x["b"], x["predicted"], x["actual"]) for x in exceptions}
+    assert len(PHASE1_EXCEPTIONS) == 32
+    missing = PHASE1_EXCEPTIONS - have
+    assert not missing, f"Phase 1 exception records lost: {sorted(missing)}"
+    main_group = {k for k in have if k[0] in PHASE1_STATS
+                  and by_symbol[k[1]]["block"] != "d" and by_symbol[k[2]]["block"] != "d"}
+    assert main_group == PHASE1_EXCEPTIONS, (
+        "A main-group pair on a Phase 1 stat gained or lost an exception:\n"
+        f"  gained: {sorted(main_group - PHASE1_EXCEPTIONS)}\n"
+        f"  lost:   {sorted(PHASE1_EXCEPTIONS - main_group)}")
+
+
+def test_every_exception_has_a_family_with_a_reason():
+    exceptions = load_json(EXCEPTIONS_FILE, "M3", "The exceptions list")
+    reasons = json.loads((ROOT / "tools" / "exception_reasons.json").read_text(encoding="utf-8"))
+    families = reasons["families"]
+    for name, f in families.items():
+        assert f.get("reason", "").strip(), f"family {name} has no reason"
+        assert f.get("label", "").strip(), f"family {name} has no label"
+    for i, x in enumerate(exceptions):
+        assert x["family"] in families, f"exceptions.json[{i}]: unknown family {x['family']!r}"
+        assert families[x["family"]]["stat"] == x["stat"], (
+            f"exceptions.json[{i}]: family {x['family']} is for another stat")
 
 
 def test_exceptions_file_matches_the_predictor():

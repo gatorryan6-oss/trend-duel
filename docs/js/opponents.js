@@ -15,15 +15,30 @@ export function deckOf(state) {
   return [...state.hands[0], ...state.hands[1], ...state.pot];
 }
 
+// Where a card sits left-to-right, on the main-group column scale (1-8).
+// "Across" follows IUPAC group (Phase 3), so a d-block card slots between
+// columns 2 and 3 in group order: Sc (group 3) at 2.09 ... Zn (group 12) at
+// 2.91. Main-group cards keep their column exactly, so Phase 1 scores are
+// unchanged.
+export function acrossIndex(card) {
+  return card.column !== null ? card.column : 2 + (card.group - 2) / 11;
+}
+
 // 0..1 from position alone: how high the trend says this card's value is.
 // Radius: low and left is high. IE / EN: high and right is high. Mass: by
-// atomic number. Valence: by column. No numbers are consulted.
+// atomic number. Valence: by column. Ionic radius (anion_first): an anion
+// scores above every cation. No numbers are consulted.
 export function positionScore(card, stat) {
   if (stat.by_z) return (card.z - 1) / 85;              // deck runs 1..86
-  if (stat.by_column) return (card.column - 1) / 7;
+  if (stat.by_column) return card.column === null ? 0 : (card.column - 1) / 7;
   const down = stat.down === "+" ? (card.period - 1) / 5 : (6 - card.period) / 5;
-  const across = stat.across === "+" ? (card.column - 1) / 7 : (8 - card.column) / 7;
-  return (down + across) / 2;
+  const x = acrossIndex(card);
+  const across = stat.across === "+" ? (x - 1) / 7 : (8 - x) / 7;
+  const position = (down + across) / 2;
+  if (stat.anion_first && card.ion_charge !== null && card.ion_charge !== undefined) {
+    return card.ion_charge < 0 ? 0.5 + position / 2 : position / 2;
+  }
+  return position;
 }
 
 // 0..1 from the data: the fraction of the other defined cards this card beats.
