@@ -32,7 +32,11 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** a Phase 4 kickoff spec, if and when the human asks. Candidates
+- **Next up:** Phase 4 kickoff DRAFTED, awaiting the human's approval —
+  `trend_duel_phase4_kickoff.md` (2026-10-31): offline play and safe updates
+  only (the human chose that scope), milestones M12-M13. Measured facts
+  (Pages `Cache-Control: max-age=600`, MDN service-worker pages) are in its
+  header. Nothing built yet. The other candidates moved to Phase 5. Candidates
   (spec §6): the 4d block, an offline service worker with a versioned cache
   (also the real fix for the deploy-cache window), sound/animation polish,
   an optional Flask score server.
