@@ -1,7 +1,7 @@
 // cards.js — draws one element card as HTML. Shared by the gallery (M1) and
 // the game board (M2+). This file is PAGE code: it may touch document.
 // The rules of the game live in engine.js, which never imports this.
-import { formatValue } from "./format.js";
+import { formatValue, formatIon } from "./format.js";
 
 // Which cells of the mini periodic table exist, by period. Main-group
 // columns are IUPAC groups 1, 2, 13–18; the d-block is groups 3–12 in
@@ -33,6 +33,12 @@ export function miniTable(element) {
   return grid;
 }
 
+// A main-group card names its column (col 7); a d-block card has no column,
+// so it names its IUPAC group (group 8).
+function position(element) {
+  return element.block === "d" ? `group ${element.group}` : `col ${element.column}`;
+}
+
 // formatValue lives in format.js (pure) so the trend explainer can share it.
 export { formatValue };
 
@@ -61,7 +67,7 @@ export function renderCard(element, stats, { statKeys, revealed = false, face = 
   const top = document.createElement("div");
   top.className = "card-top";
   top.innerHTML = `<span class="z">${element.z}</span>` +
-                  `<span class="pos">P${element.period} · col ${element.column}</span>`;
+                  `<span class="pos">P${element.period} · ${position(element)}</span>`;
   card.appendChild(top);
 
   const symbol = document.createElement("div");
@@ -92,8 +98,11 @@ export function renderCard(element, stats, { statKeys, revealed = false, face = 
     li.dataset.stat = key;
     const value = element[key];
     const isUndefined = value === null || value === undefined;
+    // A stat with show_with prints that field first: "Na⁺ 102 pm". It sits
+    // inside the value, so it stays hidden until the reveal like the number.
+    const prefix = stat.show_with && !isUndefined ? formatIon(element[stat.show_with]) + " " : "";
     li.innerHTML = `<span class="label">${stat.label}</span>` +
-                   `<span class="value${isUndefined ? " undefined" : ""}">${formatValue(stat, value)}</span>`;
+                   `<span class="value${isUndefined ? " undefined" : ""}">${prefix}${formatValue(stat, value)}</span>`;
     list.appendChild(li);
   }
   card.appendChild(list);

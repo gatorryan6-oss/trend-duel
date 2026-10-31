@@ -1,12 +1,44 @@
-// gallery.js — the M1 page: every card in the deck, click to flip.
+// gallery.js — every card in the deck, click to flip. A CP/Honors filter
+// (Phase 3 M9) switches between the 42-card main-group deck with the Phase 1
+// stats and the 52-card Honors deck with every stat. CP is the default, so
+// the page a CP student opens is the one they have always seen; the teacher
+// can link straight to the Honors view with gallery.html#honors.
 import { renderCard } from "./cards.js";
-import { loadData } from "./data.js";
+import { loadData, narrow, MAIN_BLOCKS } from "./data.js";
+import { ALL_STATS, PRESETS } from "./settings.js";
 
 function showError(message) {
   const banner = document.createElement("div");
   banner.className = "banner error";
   banner.textContent = message;
   document.querySelector("main").prepend(banner);
+}
+
+// What each filter shows. Honors is simply everything in the data files.
+function viewOf(data, deck) {
+  return deck === "honors" ? data : narrow(data, MAIN_BLOCKS, ALL_STATS);
+}
+
+function draw(data, deck) {
+  const { elements, stats } = viewOf(data, deck);
+  const grid = document.getElementById("gallery");
+  grid.replaceChildren();
+  for (const element of elements) {
+    const card = renderCard(element, stats, { face: "both" });
+    const flip = () => card.classList.toggle("revealed");
+    card.addEventListener("click", flip);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+    });
+    grid.appendChild(card);
+  }
+  grid.setAttribute("aria-label", `All ${elements.length} cards`);
+  document.getElementById("count").textContent =
+    `${PRESETS[deck].label} deck · ${elements.length} cards`;
+  document.documentElement.style.setProperty("--accent", PRESETS[deck].accent);
+  for (const btn of document.querySelectorAll("[data-deck]")) {
+    btn.setAttribute("aria-pressed", String(btn.dataset.deck === deck));
+  }
 }
 
 async function main() {
@@ -17,18 +49,15 @@ async function main() {
     showError("Trend Duel could not load its data.\n" + err.message);
     return;
   }
-  const { elements, stats } = data;
-  const grid = document.getElementById("gallery");
-  for (const element of elements) {
-    const card = renderCard(element, stats, { face: "both" });
-    const flip = () => card.classList.toggle("revealed");
-    card.addEventListener("click", flip);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+  const deckFromHash = () => (location.hash === "#honors" ? "honors" : "cp");
+  for (const btn of document.querySelectorAll("[data-deck]")) {
+    btn.addEventListener("click", () => {
+      history.replaceState(null, "", btn.dataset.deck === "honors" ? "#honors" : "#");
+      draw(data, btn.dataset.deck);
     });
-    grid.appendChild(card);
   }
-  document.getElementById("count").textContent = `${elements.length} cards`;
+  window.addEventListener("hashchange", () => draw(data, deckFromHash()));
+  draw(data, deckFromHash());
 }
 
 main();

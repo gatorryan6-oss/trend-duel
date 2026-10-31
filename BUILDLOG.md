@@ -18,8 +18,11 @@ Entry format:
 
 ## Current state
 
-- **PHASE 2 COMPLETE (2026-10-28) — STOPPED, awaiting the human's
-  confirmation before Phase 3.** Spec `trend_duel_phase2_kickoff.md`; M6 Call
+- **PHASE 3 IN PROGRESS** — spec `trend_duel_phase3_kickoff.md`, approved by
+  the human 2026-10-31. M9 (data) shipped 2026-10-31; **M9 review gate open:
+  the human reviews the ion table and the undefined electron-affinity cells in
+  data/SOURCES.md before M10 starts.**
+- **Phase 2 complete (2026-10-28).** Spec `trend_duel_phase2_kickoff.md`; M6 Call
   mode, M7 teacher page, M8 projector layout all shipped and pushed (Pages
   redeploys on each push). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
   complete and live. Remote:
@@ -27,11 +30,11 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** Phase 3 kickoff DRAFTED, awaiting the human's approval —
-  `trend_duel_phase3_kickoff.md` (2026-10-30): Honors deck extension (Sc-Zn,
-  electron affinity, ionic radius), milestones M9-M11. Sizing measured from
-  mendeleev 1.3.0 before drafting is recorded in the spec's header. Nothing
-  built yet.
+- **Next up:** M10 (predictor on IUPAC group, column/group wording,
+  anion-first rule, exceptions with `family`, tools/review_family.py) — only
+  after the human clears the M9 review gate. Until M11's `deck` setting, the
+  game and the exceptions build both play `narrow(data, MAIN_BLOCKS,
+  ALL_STATS)`: the 3d cards and the two new stats are gallery-only.
 - **Still the teacher's:** exceptions.json has 32 drafted reasons and 0
   flipped to reviewed:true — the game shows the generic upset line until he
   flips them. Helium's valence_e is 8 by the kickoff's locked column rule
@@ -45,7 +48,7 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 29 passed, 0 skipped. `npm test`: 60 tests pass;
+  parsed). pytest: 33 passed, 0 skipped. `npm test`: 63 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
@@ -59,6 +62,38 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-10-31 — M9: The data (Phase 3)
+- Shipped: elements.json now 52 cards (42 + Sc-Zn) with `block`, `ea_kjmol`,
+  `ionic_radius_pm`, `ion`, `ion_charge`; `column`/`valence_e` null for
+  d-block. stats.json gains `ea_kjmol` and `ionic_radius_pm` (with
+  `anion_first`, and `show_with: "ion"` so the card prints `Na⁺ 102 pm`).
+  SOURCES.md gains both citations, an ion table (element, ion, CN, spin,
+  stored, shown, Shannon most_reliable, reason if undefined) and an EA
+  undefined-cells table with the dataset's raw values. Ten new hand-checks
+  (Cl/F/O EA, Na⁺/K⁺/F⁻/Cl⁻/O²⁻ ionic radius, Fe/Zn IE1) against Wikipedia
+  data pages fetched 2026-10-31, as a build gate: all 20 pass. Gallery has a
+  CP/Honors filter (CP default = the old page; `gallery.html#honors` links
+  the 52-card view); d-block cards read `P4 · group 8` and light their cell.
+  verify.py PASS; pytest 33 passed; npm test 63 passed. docs/ 176 KB.
+- Deferred: predictor/exceptions to M10; deck setting, Honors preset, teacher
+  columns, About page to M11 (all per spec).
+- Open bugs: none. Fixed in passing: package.json's `npm test` script was
+  still the bare-directory form Node refuses (`node --test tests/js`) — now
+  the glob form CLAUDE.md documents. verify.py was never affected (it calls
+  Node with the glob itself).
+- Decisions: (1) The game and the exceptions build see only
+  `narrow(data, MAIN_BLOCKS, ALL_STATS)` until M11 (new helper in data.js), so
+  exceptions.json is byte-identical (32 entries) and CP sees no change; the
+  five JS test files use the same view. (2) Shannon values stored to 0.1 pm
+  (float noise rounded, .5s kept: Al³⁺ 53.5, Sc³⁺ 74.5, Ti⁴⁺ 60.5, Cr³⁺
+  61.5, Fe³⁺ 64.5, Co²⁺ 74.5, Tl³⁺ 88.5); the card rounds half up (JS
+  toFixed), and SOURCES' "Shown" column uses the same rule, not Python's
+  half-to-even. (3) EA: the build stops if the set of negative values ever
+  differs from {He, Be, N, Ar, Xe} or a no-value element gains one. (4) Ion
+  rows are looked up by (charge, CN VI, spin) and must match exactly one
+  Shannon row, else the build stops. (5) valence_e gains an undefined_note
+  for d-block cards (only reachable in a Custom game after M11).
 
 ## 2026-10-28 — M8: Projector layout (Phase 2) — PHASE 2 COMPLETE
 - Shipped: settings.projector (checkbox under Display; key P on the title

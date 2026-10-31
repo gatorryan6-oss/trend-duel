@@ -156,6 +156,8 @@ main { padding: 1rem 1.25rem 2rem; }
 
 /* ---------- game screens ---------- */
 .title h2, .end h2 { margin: .25rem 0 .5rem; }
+.deck-filter { display: flex; gap: .5rem; flex-wrap: wrap; margin: 0 0 .75rem; }
+.deck-filter button[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; font-weight: 600; }
 .preset-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: .75rem 0; }
 button {
   font: inherit;

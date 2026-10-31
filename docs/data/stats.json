@@ -42,6 +42,29 @@
   "label": "Valence electrons",
   "unit": "",
   "decimals": 0,
-  "by_column": true
+  "by_column": true,
+  "undefined_note": "Valence electrons equal the column only for main-group elements; a d-block card has no column."
+ },
+ {
+  "key": "ea_kjmol",
+  "short": "ea",
+  "label": "Electron affinity",
+  "unit": "kJ/mol",
+  "decimals": 1,
+  "down": "-",
+  "across": "+",
+  "undefined_note": "This element does not form a stable negative ion, so it has no comparable electron affinity."
+ },
+ {
+  "key": "ionic_radius_pm",
+  "short": "ionic",
+  "label": "Ionic radius",
+  "unit": "pm",
+  "decimals": 0,
+  "down": "+",
+  "across": "-",
+  "anion_first": true,
+  "show_with": "ion",
+  "undefined_note": "This element has no common simple ion with a comparable six-coordinate radius."
  }
 ]

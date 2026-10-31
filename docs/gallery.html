@@ -13,7 +13,11 @@
   <nav><a href="index.html">Play</a><a href="about.html">About the data</a><a href="teacher.html">Teacher</a></nav>
 </header>
 <main>
-  <p class="hint">Click or press Space on a card to flip it between hidden and revealed values. The lit cell on the mini table is the element's position; the faint block is the d-block, which is not in the Phase 1 deck.</p>
+  <div class="deck-filter" role="group" aria-label="Which deck">
+    <button type="button" data-deck="cp" aria-pressed="true">CP deck · 42 cards</button>
+    <button type="button" data-deck="honors" aria-pressed="false">Honors deck · 52 cards</button>
+  </div>
+  <p class="hint">Click or press Space on a card to flip it between hidden and revealed values. The lit cell on the mini table is the element's position. The CP deck is the main-group elements; the Honors deck adds the 3d row, Sc to Zn, plus electron affinity and ionic radius.</p>
   <section id="gallery" class="gallery" aria-label="All 42 cards"></section>
 </main>
 <script type="module" src="js/gallery.js"></script>

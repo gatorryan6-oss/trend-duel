@@ -21,6 +21,8 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { computeExceptions } from "../docs/js/trend.js";
+import { narrow, MAIN_BLOCKS } from "../docs/js/data.js";
+import { ALL_STATS } from "../docs/js/settings.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -29,8 +31,12 @@ const STATS = join(root, "docs/data/stats.json");
 const OUT = join(root, "docs/data/exceptions.json");
 const REASONS = join(here, "exception_reasons.json");
 
-const elements = JSON.parse(readFileSync(ELEMENTS, "utf8"));
-const stats = JSON.parse(readFileSync(STATS, "utf8"));
+// Scope: the deck the game plays (main-group cards, Phase 1 stats) until
+// M10 teaches the predictor the 3d block and the two new stats.
+const { elements, stats } = narrow({
+  elements: JSON.parse(readFileSync(ELEMENTS, "utf8")),
+  stats: JSON.parse(readFileSync(STATS, "utf8")),
+}, MAIN_BLOCKS, ALL_STATS);
 const reasons = existsSync(REASONS) ? JSON.parse(readFileSync(REASONS, "utf8")) : {};
 const existing = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : [];
 

@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { narrow, MAIN_BLOCKS } from "../../docs/js/data.js";
+import { ALL_STATS } from "../../docs/js/settings.js";
 
 import { resultsString, parseResults, cleanName, localDate, FORMAT_VERSION } from "../../docs/js/results.js";
 import { emptyTally, recordReveal, recordGameEnd, merge, load, save, reset, MASTERY_KEY }
@@ -11,8 +13,10 @@ import { emptyTally, recordReveal, recordGameEnd, merge, load, save, reset, MAST
 import { resolve } from "../../docs/js/engine.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const elements = JSON.parse(readFileSync(join(here, "../../docs/data/elements.json"), "utf8"));
-const stats = JSON.parse(readFileSync(join(here, "../../docs/data/stats.json"), "utf8"));
+const allElements = JSON.parse(readFileSync(join(here, "../../docs/data/elements.json"), "utf8"));
+const allStats = JSON.parse(readFileSync(join(here, "../../docs/data/stats.json"), "utf8"));
+// The deck the game plays until the M11 deck setting: main-group cards, Phase 1 stats.
+const { elements, stats } = narrow({ elements: allElements, stats: allStats }, MAIN_BLOCKS, ALL_STATS);
 const S = Object.fromEntries(stats.map(s => [s.key, s]));
 const E = Object.fromEntries(elements.map(e => [e.symbol, e]));
 

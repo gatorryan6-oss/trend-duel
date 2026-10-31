@@ -12,7 +12,8 @@ tests don't. They guard:
       once the server answers,
   (d) .claude/settings.json pins the model and runs verify.py as a Stop hook,
   and the nine data/architecture invariants from kickoff §5:
-  (1) elements.json holds exactly the 42 locked atomic numbers, no duplicates,
+  (1) elements.json holds exactly the 42 locked main-group atomic numbers
+      plus Sc-Zn (Phase 3), no duplicates; block "d" exactly for Sc-Zn,
   (2) every record has every schema field; null ONLY where data/SOURCES.md
       documents the stat as undefined for that element (and vice versa),
   (3) value ranges,
@@ -67,11 +68,18 @@ LOCKED_Z = sorted(
     + [55, 56] + list(range(81, 87))         # Cs, Ba, Tl-Rn
 )
 assert len(LOCKED_Z) == 42
+# Phase 3 kickoff §5 invariant 1: the Honors extension adds the 3d row.
+D_BLOCK_Z = list(range(21, 31))              # Sc-Zn
+DECK_Z = sorted(LOCKED_Z + D_BLOCK_Z)
 
-# (2) The card schema. Identity fields are not stats.
-IDENTITY_FIELDS = {"z", "symbol", "name", "period", "group", "column", "econf"}
-STAT_KEYS = {"radius_pm", "ie1_kjmol", "en_pauling", "mass", "valence_e"}
-SCHEMA_FIELDS = IDENTITY_FIELDS | STAT_KEYS
+# (2) The card schema. Identity fields are not stats. `column` is the one
+# identity field allowed to be null (d-block cards have no main-group column).
+IDENTITY_FIELDS = {"z", "symbol", "name", "period", "group", "column", "block", "econf"}
+# The chosen ion for ionic radius: null exactly when the radius is null.
+ION_FIELDS = {"ion", "ion_charge"}
+STAT_KEYS = {"radius_pm", "ie1_kjmol", "en_pauling", "mass", "valence_e",
+             "ea_kjmol", "ionic_radius_pm"}
+SCHEMA_FIELDS = IDENTITY_FIELDS | ION_FIELDS | STAT_KEYS
 
 # (3) Sanity ranges (kickoff §5).
 RANGES = {
@@ -79,6 +87,8 @@ RANGES = {
     "ie1_kjmol": (370, 2400),
     "en_pauling": (0.7, 4.0),
     "mass": (1, 225),
+    "ea_kjmol": (0, 400),            # Phase 3 §5 invariant 3
+    "ionic_radius_pm": (20, 250),
 }
 
 # (6) Size budget for everything the browser could load.
@@ -249,15 +259,22 @@ def test_settings_pin_model_and_stop_hook():
         "settings.json must run verify.py as a Stop hook.")
 
 
-# ---------------- (1) exactly the 42 locked cards ----------------
+# ---------------- (1) exactly the locked cards ----------------
 
-def test_deck_is_exactly_the_42_locked_elements(elements):
+def test_deck_is_exactly_the_42_locked_elements_plus_the_3d_row(elements):
     zs = [e["z"] for e in elements]
     assert len(zs) == len(set(zs)), "elements.json has duplicate atomic numbers."
-    assert sorted(zs) == LOCKED_Z, (
-        f"elements.json must hold exactly the 42 locked atomic numbers.\n"
-        f"  missing: {sorted(set(LOCKED_Z) - set(zs))}\n"
-        f"  extra:   {sorted(set(zs) - set(LOCKED_Z))}")
+    assert sorted(zs) == DECK_Z, (
+        f"elements.json must hold exactly the 42 locked atomic numbers plus 21-30.\n"
+        f"  missing: {sorted(set(DECK_Z) - set(zs))}\n"
+        f"  extra:   {sorted(set(zs) - set(DECK_Z))}")
+
+
+def test_block_is_d_exactly_for_the_3d_row(elements):
+    for e in elements:
+        assert (e["block"] == "d") == (e["z"] in D_BLOCK_Z), (
+            f"{e['symbol']}: block {e['block']!r} but z={e['z']}")
+        assert e["block"] in ("s", "p", "d"), f"{e['symbol']}: unknown block {e['block']!r}"
 
 
 # ---------------- (2) schema, and null only where documented ----------------
@@ -272,9 +289,13 @@ def test_every_record_has_every_field(elements):
                              f"extra={sorted(extra)}")
     assert not offenders, "Schema drift in elements.json:\n  " + "\n  ".join(offenders)
     for e in elements:
-        assert 1 <= e["column"] <= 8, f"{e['symbol']}: column must be 1-8 (got {e['column']})"
+        if e["block"] == "d":
+            assert e["column"] is None, (
+                f"{e['symbol']}: a d-block card has no main-group column (got {e['column']})")
+        else:
+            assert 1 <= e["column"] <= 8, f"{e['symbol']}: column must be 1-8 (got {e['column']})"
         assert 1 <= e["period"] <= 6, f"{e['symbol']}: period must be 1-6"
-        for f in IDENTITY_FIELDS:
+        for f in IDENTITY_FIELDS - {"column"}:
             assert e[f] is not None, f"{e['symbol']}: identity field {f} is null"
 
 
@@ -337,12 +358,64 @@ def test_electronegativity_maximum_is_fluorine(elements):
 def test_mass_inversions(by_symbol):
     _descending(by_symbol, "mass", ["Ar", "K"])
     _descending(by_symbol, "mass", ["Te", "I"])
+    _descending(by_symbol, "mass", ["Co", "Ni"])        # Phase 3 §5 invariant 4
+
+
+def test_phase3_canonical_orderings(elements, by_symbol):
+    """Phase 3 §5 invariant 4: what a swapped or mis-chosen dataset would break."""
+    _descending(by_symbol, "ionic_radius_pm", ["I", "Br", "Cl", "F"])
+    ea = {e["symbol"]: e["ea_kjmol"] for e in elements if e["ea_kjmol"] is not None}
+    assert max(ea, key=ea.get) == "Cl", "Cl must have the deck's largest electron affinity."
+    row = {e["symbol"]: e["ie1_kjmol"] for e in elements if e["block"] == "d"}
+    assert max(row, key=row.get) == "Zn", "Zn must have the 3d row's highest IE1."
+
+
+def test_ion_fields_follow_the_radius(elements):
+    """ion and ion_charge are null exactly when ionic_radius_pm is, and the
+    ion's name spells its charge (Na+, O2-, Fe3+)."""
+    for e in elements:
+        r, ion, q = e["ionic_radius_pm"], e["ion"], e["ion_charge"]
+        assert (r is None) == (q is None) == (ion is None), (
+            f"{e['symbol']}: ionic_radius_pm={r}, ion={ion!r}, ion_charge={q} must be "
+            "all null or all set")
+        if q is not None:
+            size = "" if abs(q) == 1 else str(abs(q))
+            assert ion == f"{e['symbol']}{size}{'+' if q > 0 else '-'}", (
+                f"{e['symbol']}: ion {ion!r} does not match charge {q}")
+            assert q < 0 or e["group"] < 16, f"{e['symbol']}: a cation from group {e['group']}?"
 
 
 def test_valence_electrons_equal_column(elements):
     for e in elements:
-        assert e["valence_e"] == e["column"], (
-            f"{e['symbol']}: valence_e {e['valence_e']} != column {e['column']}")
+        if e["block"] == "d":
+            assert e["valence_e"] is None, (
+                f"{e['symbol']}: valence_e must be null for a d-block card")
+        else:
+            assert e["valence_e"] == e["column"], (
+                f"{e['symbol']}: valence_e {e['valence_e']} != column {e['column']}")
+
+
+# Phase 1's ten and Phase 3's ten (§5 invariant 8). The build script fails on
+# drift; this checks the list is still in SOURCES.md and still the data.
+HAND_CHECKED_PHASE3 = {("Cl", "ea_kjmol"), ("F", "ea_kjmol"), ("O", "ea_kjmol"),
+                       ("Na", "ionic_radius_pm"), ("K", "ionic_radius_pm"),
+                       ("F", "ionic_radius_pm"), ("Cl", "ionic_radius_pm"),
+                       ("O", "ionic_radius_pm"), ("Fe", "ie1_kjmol"), ("Zn", "ie1_kjmol")}
+
+
+def test_hand_checked_values_are_listed_and_current(by_symbol):
+    require(SOURCES_FILE, "M1", "data/SOURCES.md")
+    text = SOURCES_FILE.read_text(encoding="utf-8")
+    rows = re.findall(r"^\| (\w+) \| `(\w+)` \| ([\d.]+) \| ([\d.]+) \| \[\w\] \|$",
+                      text, re.MULTILINE)
+    assert len(rows) == 20, f"SOURCES.md should list 20 hand-checked values; found {len(rows)}"
+    listed = {(sym, key) for sym, key, _, _ in rows}
+    assert HAND_CHECKED_PHASE3 <= listed, (
+        f"missing Phase 3 hand-checks: {sorted(HAND_CHECKED_PHASE3 - listed)}")
+    for sym, key, built, _ in rows:
+        assert float(built) == by_symbol[sym][key], (
+            f"SOURCES.md says {sym}.{key} built {built}; elements.json has "
+            f"{by_symbol[sym][key]}. Rebuild with tools/build_elements.py.")
 
 
 # ---------------- (5) no external requests ----------------
@@ -397,7 +470,7 @@ def test_stats_json_shape(stats):
     keys = [s["key"] for s in stats]
     assert len(keys) == len(set(keys)), "stats.json has duplicate keys."
     assert set(keys) == STAT_KEYS, (
-        f"stats.json keys {sorted(keys)} != locked Phase 1 keys {sorted(STAT_KEYS)}")
+        f"stats.json keys {sorted(keys)} != locked keys {sorted(STAT_KEYS)}")
     shorts = [s.get("short") for s in stats]
     assert len(shorts) == len(set(shorts)), "stats.json short names must be unique."
     for s in stats:
@@ -411,6 +484,12 @@ def test_stats_json_shape(stats):
             f"stats.json {s['key']}: needs down/across, or by_z, or by_column")
         if directional:
             assert s["down"] in "+-" and s["across"] in "+-"
+        if "anion_first" in s:
+            assert s["anion_first"] is True and directional, (
+                f"stats.json {s['key']}: anion_first is a flag on a down/across stat")
+        if "show_with" in s:
+            assert s["show_with"] in ION_FIELDS, (
+                f"stats.json {s['key']}: show_with must name a card field")
 
 
 def test_every_stat_key_is_sourced(stats):
@@ -423,7 +502,7 @@ def test_every_stat_key_is_sourced(stats):
 def test_every_card_stat_is_declared(elements, stats):
     declared = {s["key"] for s in stats}
     for e in elements:
-        on_card = set(e) - IDENTITY_FIELDS
+        on_card = set(e) - IDENTITY_FIELDS - ION_FIELDS
         undeclared = on_card - declared
         assert not undeclared, (
             f"{e['symbol']} carries stat(s) {sorted(undeclared)} that "

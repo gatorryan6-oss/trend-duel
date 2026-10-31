@@ -4,7 +4,7 @@
 import { newGame, chooseStat, continueGame, playableStats, score, topCard, makeRng }
   from "./engine.js";
 import { renderCard, renderCardBack } from "./cards.js";
-import { loadData } from "./data.js";
+import { loadData, narrow, MAIN_BLOCKS } from "./data.js";
 import { OPPONENTS } from "./opponents.js";
 import { explain } from "./trend.js";
 import { PRESETS, ALL_STATS, applyPreset, presetOf, validate, toConfig, load, save }
@@ -487,7 +487,9 @@ function onKey(e) {
 // ---------- wiring ----------
 async function main() {
   try {
-    data = await loadData();
+    // Until the M11 deck setting, the game plays the main-group cards and the
+    // Phase 1 stats only; the 3d cards and the new stats are gallery-only.
+    data = narrow(await loadData(), MAIN_BLOCKS, ALL_STATS);
   } catch (err) {
     showError("Trend Duel could not load its data.\n" + err.message);
     return;
