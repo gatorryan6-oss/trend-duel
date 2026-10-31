@@ -18,12 +18,12 @@ Entry format:
 
 ## Current state
 
-- **PHASE 3 COMPLETE (2026-10-31) — STOPPED, awaiting the human's
-  confirmation before Phase 4.** Spec `trend_duel_phase3_kickoff.md`; M9 data,
-  M10 predictor + exception families, M11 Honors deck in play — all shipped
-  and pushed. Still to be confirmed by the human (M11 checkpoint): an Honors
-  Duel and Call game on a laptop, one projected, a CP game unchanged, and the
-  live URL on a school Chromebook.
+- **PHASE 3 COMPLETE AND CONFIRMED (2026-10-31).** Spec
+  `trend_duel_phase3_kickoff.md`; M9 data, M10 predictor + exception
+  families, M11 Honors deck in play — all shipped, pushed and live. The human
+  confirmed the M11 checkpoint ("Phase 3 confirmed", 2026-10-31): Honors Duel
+  and Call on a laptop, projected, CP unchanged, live URL on a school
+  Chromebook. No Phase 4 spec exists yet.
 - **Phase 2 complete (2026-10-28).** Spec `trend_duel_phase2_kickoff.md`; M6 Call
   mode, M7 teacher page, M8 projector layout all shipped and pushed (Pages
   redeploys on each push). Phase 1 (`trend_duel_v1_kickoff.md`, M0-M5 + M4.1) is
@@ -32,7 +32,7 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** nothing until the human confirms Phase 3. Phase 4 candidates
+- **Next up:** a Phase 4 kickoff spec, if and when the human asks. Candidates
   (spec §6): the 4d block, an offline service worker with a versioned cache
   (also the real fix for the deploy-cache window), sound/animation polish,
   an optional Flask score server.
