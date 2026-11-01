@@ -111,7 +111,7 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   js/about.js              fills About's ion table from elements.json (Phase 3 M11)
   js/startup_guard.js      plain script: banner if a module fails to load (Phase 3 M11)
   sw.js                    service worker: hash-checked offline copy; GENERATED block (Phase 4 M12)
-  js/offline.js            plain script: registers sw.js, fills the version line (Phase 4 M12)
+  js/offline.js            plain script: registers sw.js, version line, update line + Reload (Phase 4 M12, M13)
   teacher.html js/teacher.js  paste TD1 lines -> class table; ONE parser (results.js) (Phase 2 M7)
   js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)
@@ -123,7 +123,8 @@ tools/build_elements.py    the data build (M1) — the only thing that imports m
 tools/build_exceptions.mjs computes exceptions.json from the game's own predictor (M3)
 tools/exception_reasons.json  drafted reasons: one per family + per-pair overrides (M3, M10)
 tools/review_family.py     THE TEACHER'S tool: list families, approve one (sets reviewed), --report
-tools/build_sw.py          writes VERSION + FILES (path -> SHA-256) into docs/sw.js; --check (M12)
+tools/build_sw.py          writes VERSION + FILES (path -> SHA-256) into docs/sw.js; --check (M12); --kill / --restore (M13)
+tools/check_live.py        has my push deployed? live sw.js + every file it lists vs local docs/ (M13)
 tools/requirements.txt     tooling deps, version-pinned
 tests/test_invariants.py   kickoff §2/§5 as checks
 tests/js/                  engine unit tests, `npm test` (M2)
@@ -157,12 +158,48 @@ trend_duel_v1_kickoff.md   the spec
   `pip install -r tools/requirements.txt`).
 - `python tools/build_sw.py` — **rerun after ANY change under `docs/`**, or
   the invariants fail (`--check`) and every device would refuse the update.
+- `python tools/check_live.py` — after a push: prints "live site is version
+  X, all N files match -- same as your local docs/" once GitHub Pages has
+  finished deploying (exit 0), or names the stale files (exit 1).
+  `--url http://127.0.0.1:5093/` checks the local server instead.
 - **Developing with the service worker (Phase 4):** a browser that has
-  visited localhost:5093 serves the saved copy, and a new version waits until
-  every tab of the site is closed (M13 adds a Reload line). To see edits at
-  once, close all the site's tabs and reopen, or unregister the worker in the
+  visited localhost:5093 serves the saved copy. After an edit and
+  `build_sw.py`, the open page finds the new version within 5 minutes (or when
+  its tab comes back into view) and shows "A new version of Trend Duel is
+  ready — Reload"; click it. For edits at once, unregister the worker in the
   browser's dev tools (Application > Service workers). verify.py is not
   affected: it fetches over plain HTTP.
+
+### Emergency: switch the offline copy off everywhere (the kill switch)
+
+Use this only if the service worker itself is misbehaving on students'
+devices (a page stuck on an old version, a broken copy served offline). It
+does not fix a bug in the game; it removes the offline layer so every device
+loads straight from the network, exactly as before Phase 4.
+
+1. Commit any pending work first: `--kill` refuses while `docs/sw.js` has
+   uncommitted changes, because `--restore` brings back the last COMMITTED
+   worker.
+2. `python tools/build_sw.py --kill` — writes the kill-switch `docs/sw.js`.
+3. Gates: `python verify.py` and `python -m pytest tests/test_invariants.py
+   -q` still pass, LOUDLY: `--check` prints `WARNING: docs/sw.js is the KILL
+   SWITCH` and two invariants SKIP by name. That is expected in this state.
+4. Commit ("Kill switch: offline copy off") and push. On each device's next
+   visit the kill worker takes over at once, deletes every `trend-duel-*`
+   cache and unregisters itself. The version line then says "Not saved for
+   offline on this device". `python tools/check_live.py` reports that the live
+   sw.js is the kill switch.
+5. Log it in BUILDLOG (why, when) the same day.
+
+To turn the offline copy back on: `python tools/build_sw.py --restore` (takes
+the newest committed real worker from git history and rebuilds its file list
+for docs/ as it is now), run the gates (no WARNING, no skips), commit, push.
+Rehearsed locally at M13 (2026-11-01): after `--kill`, a reloaded page lost
+its copy and its registration a few seconds later; the next load came from
+the network ("Not saved for offline on this device") and played. While the
+kill switch stands, each visit re-registers it and it removes itself again,
+which is harmless. `--restore` gave a `sw.js` byte-identical to the committed
+one, and the browser saved the copy again.
 
 Port 5093 is this project's dedicated port. Taken by other projects on this
 machine (read from their verify.py files 2026-10-14): 5000 (FieldStop), 5040

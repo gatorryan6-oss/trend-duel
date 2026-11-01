@@ -16,6 +16,12 @@ const DOCS = join(here, "../../docs");
 const SOURCE = readFileSync(join(DOCS, "sw.js"), "utf8");
 const ORIGIN = "http://localhost:5093";
 
+// While the kill switch (build_sw.py --kill) stands in for the real worker,
+// the tests of the real worker SKIP by name, as the pytest invariants do.
+const KILLED = SOURCE.includes("// KILL SWITCH written by tools/build_sw.py --kill");
+const realTest = (name, fn) => test(name, KILLED
+  ? { skip: "docs/sw.js is the KILL SWITCH; undo with python tools/build_sw.py --restore" } : {}, fn);
+
 // A pretend browser: fake caches, a fake network, the real crypto.
 function sandbox({ network, source = SOURCE } = {}) {
   const stores = new Map();                  // cache name -> Map(url -> Response)
@@ -61,7 +67,7 @@ function sandbox({ network, source = SOURCE } = {}) {
   return { context, stores, handlers, requests, calls, sw: context.__sw };
 }
 
-test("the worker's hash matches build_sw.py on every listed file, and ignores CRLF", async () => {
+realTest("the worker's hash matches build_sw.py on every listed file, and ignores CRLF", async () => {
   const { context, sw } = sandbox();
   const paths = Object.keys(sw.FILES);
   assert.ok(paths.length >= 20, "sw.js lists the site's files");
@@ -73,7 +79,7 @@ test("the worker's hash matches build_sw.py on every listed file, and ignores CR
   assert.equal(await context.contentHash(lf), await context.contentHash(crlf));
 });
 
-test("a clean install stores every file, fetched straight from the server", async () => {
+realTest("a clean install stores every file, fetched straight from the server", async () => {
   const { context, stores, requests, sw } = sandbox();
   await context.precache();
   const store = stores.get(sw.CACHE);
@@ -81,7 +87,7 @@ test("a clean install stores every file, fetched straight from the server", asyn
   assert.ok(requests.every(r => r.cache === "reload"), "never from the browser's own cache");
 });
 
-test("one stale file throws the whole install away", async () => {
+realTest("one stale file throws the whole install away", async () => {
   const { context, stores } = sandbox({
     network: (path) => path === "data/exceptions.json" ? new Response("[]", { status: 200 }) : null,
   });
@@ -89,7 +95,7 @@ test("one stale file throws the whole install away", async () => {
   assert.equal(stores.size, 0, "nothing stored: the old version keeps serving");
 });
 
-test("one missing file throws the whole install away", async () => {
+realTest("one missing file throws the whole install away", async () => {
   const { context, stores } = sandbox({
     network: (path) => path === "js/ui.js" ? new Response("gone", { status: 404 }) : null,
   });
@@ -97,7 +103,7 @@ test("one missing file throws the whole install away", async () => {
   assert.equal(stores.size, 0);
 });
 
-test("the folder answers with index.html; activate deletes only older trend-duel copies", async () => {
+realTest("the folder answers with index.html; activate deletes only older trend-duel copies", async () => {
   const { context, stores, handlers, sw } = sandbox();
   await context.precache();
   const index = await context.fromCache({ url: ORIGIN + "/" });
@@ -110,7 +116,7 @@ test("the folder answers with index.html; activate deletes only older trend-duel
   assert.deepEqual([...stores.keys()].sort(), [sw.CACHE, "someone-else"].sort());
 });
 
-test("the worker takes over only when a page sends skip-waiting", async () => {
+realTest("the worker takes over only when a page sends skip-waiting", async () => {
   const { handlers, calls } = sandbox();
   handlers.install({ waitUntil() {} });
   assert.equal(calls.skipWaiting, 0, "installing never takes over");
