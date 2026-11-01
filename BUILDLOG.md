@@ -32,15 +32,16 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **PHASE 4 IN PROGRESS** — spec `trend_duel_phase4_kickoff.md` (offline
-  play and safe updates), approved by the human 2026-11-01. M12 (the offline
-  copy) shipped 2026-11-01.
-- **Next up:** M13 (update line + Reload, offline wording, update check on
-  load, tools/check_live.py, build_sw.py --kill and its CLAUDE.md procedure).
-  Phase 5 candidates
-  (spec §6): the 4d block, an offline service worker with a versioned cache
-  (also the real fix for the deploy-cache window), sound/animation polish,
-  an optional Flask score server.
+- **PHASE 4 BUILT, AWAITING THE HUMAN'S CHECKPOINT** — spec
+  `trend_duel_phase4_kickoff.md` (offline play and safe updates), approved
+  2026-11-01. M12 (the offline copy) and M13 (safe updates) shipped, pushed
+  and live (version 4d1066f, check_live.py: all 24 files match).
+- **Next up:** the human's M13 checkpoint (spec §4): a live update on the
+  laptop (Claude pushes a small visible change; he runs check_live.py, sees
+  the update line, clicks Reload), then a school Chromebook with Wi-Fi off.
+  Log which result the Chromebook gave ("saved for offline" or "not saved").
+  STOP after Phase 4. Phase 5 candidates (spec §6): the 4d block,
+  sound/animation polish, an optional Flask score server.
 - **Still the teacher's:** exceptions.json has 209 entries in 29 families,
   0 reviewed. He approves a family with `python tools/review_family.py
   <family>` (the only tool that sets the flag); the game shows the generic
@@ -55,7 +56,8 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 42 passed, 0 skipped. `npm test`: 83 tests pass;
+  parsed, /sw.js, build_sw.py --check). pytest: 43 passed, 0 skipped.
+  `npm test`: 92 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
@@ -69,6 +71,74 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-11-01 — M13: Safe updates (Phase 4)
+- Shipped: an installed new version WAITS, and js/offline.js shows "A new
+  version of Trend Duel is ready — Reload" (a bar pinned to the bottom edge).
+  The click posts "skip-waiting" to the waiting worker; sw.js calls
+  skipWaiting() only for that message; the page reloads only on the
+  controllerchange that follows the click. If another tab switched versions,
+  this page gets the same line (click = plain reload), never a forced reload.
+  Version line: "Offline — playing saved version X" when navigator.onLine is
+  false. Update checks: on load, every 5 minutes, and when the tab comes back
+  into view. tools/check_live.py (stdlib; imports build_sw.content_hash):
+  live sw.js + every listed file vs local docs/, exit 0 only when all match
+  AND live == local; --url for any copy. build_sw.py --kill writes a
+  kill-switch sw.js (skipWaiting on install, deletes every trend-duel-*
+  cache, unregisters, no fetch handler); --restore brings back the newest
+  committed real worker with a rebuilt block; --kill refuses while sw.js has
+  uncommitted changes (--restore could not recover them); --check accepts
+  the kill switch only byte-for-byte and prints a WARNING. Procedure in
+  CLAUDE.md ("Emergency: switch the offline copy off everywhere").
+  Tests: tests/js/offline.test.js (7) runs the real offline.js in a vm with
+  a fake page and service-worker events (first save is not an update; line
+  only once installed; no reload before the click AND the takeover; other
+  tab = offered, not forced; offline wording; 5-minute and focus checks);
+  sw.test.js +2 (takes over only on skip-waiting; kill switch end to end);
+  invariant: offline.js reloads in exactly two places, both behind a click;
+  the skipWaiting invariant now also requires the skip-waiting guard.
+  DEMO (local, browser pane): Honors game open on 4d1066f, round 1 revealed;
+  a visible demo line added to index.html and build_sw.py rerun (df47d0a);
+  the page's own focus check found it, all files hash-checked, worker
+  waiting, update line shown, game untouched; round 2 played under the
+  line; Reload -> exactly one reload, "Version df47d0a", demo line present,
+  old cache deleted. Demo edit reverted (back to 4d1066f).
+  KILL REHEARSAL (local): --kill; gates PASS loudly (WARNING, 2 pytest + 6
+  node skips by name); reloaded page lost its copy and registration a few
+  seconds later; next load from network, "Not saved for offline on this
+  device", game ready; --restore -> sw.js byte-identical to commit f7f60a7;
+  browser saved 4d1066f again. Test browser cleaned afterwards.
+  LIVE (after push of 7e22069): check_live.py reported 40eeeb7 (old) for
+  ~40 s, then "live site is version 4d1066f, all 24 files match -- same as
+  your local docs/"; the live URL installed 4d1066f in the browser pane
+  (scope /trend-duel/), then that test registration was removed.
+  verify.py PASS (node 92/92); pytest 43.
+  MDN pages read this milestone (all fetched 2026-11-01):
+  ServiceWorkerRegistration/update, /waiting, /installing,
+  /updatefound_event, /unregister; ServiceWorker/state, /statechange_event,
+  /postMessage; ServiceWorkerGlobalScope/skipWaiting, /registration;
+  ServiceWorkerContainer/controllerchange_event; Navigator/onLine;
+  Window/online_event, /offline_event (developer.mozilla.org/en-US/docs/Web/API/...).
+- Deferred: the Chromebook half of the checkpoint (needs the human and a
+  school device).
+- Open bugs: none.
+- Decisions: (1) Update checks every 5 minutes and on tab focus, beyond the
+  spec's "on load": a one-page game that stays open all period never
+  reloads, so a load-only check could not show the line the checkpoint asks
+  for. Each check downloads only sw.js. (2) navigator.onLine is a hint only
+  (MDN: a LAN with no internet counts as online), so it changes words,
+  never behaviour. (3) The kill switch is the one designed exception to
+  "never skipWaiting on its own"; the invariants skip (by name) rather than
+  fail while it stands, so an emergency push is not blocked, and --check's
+  WARNING keeps it visible. Calling self.registration.unregister() from
+  inside the worker is an inference from MDN (registration is a
+  ServiceWorkerRegistration; unregister is its method), confirmed in the
+  browser rehearsal, not a sentence on the page. (4) The rehearsal itself
+  found that the node worker tests crashed under the kill switch; they now
+  skip with the restore command as the reason (commit 7e22069). (5) An
+  install in a background (hidden) browser tab ran slowly (about a minute
+  for 24 files), and the page played normally throughout; a copy is only
+  used once complete.
 
 ## 2026-11-01 — M12: The offline copy (Phase 4)
 - Shipped: tools/build_sw.py (+ --check) writes VERSION and FILES (24 files,
