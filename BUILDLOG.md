@@ -87,7 +87,11 @@ Entry format:
   browser's worker unregistered afterwards. verify.py PASS; pytest 42;
   npm test 83 (tests/js/sw.test.js runs the real sw.js in a Node vm with a
   fake cache and network: JS hash == Python hash on every file; one stale or
-  missing file stores nothing).
+  missing file stores nothing). LIVE (after Pages built 45961bb): all 24
+  files served by GitHub Pages match the live sw.js hashes (CRLF rule holds),
+  and a browser installed the worker from the live URL (scope /trend-duel/,
+  "Version 40eeeb7 · saved for offline"); that test registration was then
+  removed.
 - Deferred: update line / Reload, offline wording, check_live.py, kill
   switch — M13 per spec.
 - Open bugs: none. Known until M13: a new version waits until every tab of
