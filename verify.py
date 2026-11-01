@@ -75,7 +75,7 @@ EXTRA_PAGES = [                                # (path, must-contain) — more p
     ("/gallery.html", "Card gallery"),         # the deck gallery (M1)
     ("/about.html", "About the data"),         # sources and standards (M5)
     ("/teacher.html", "Build table"),          # the class results table (Phase 2 M7)
-    ("/sw.js", "BEGIN GENERATED"),             # the offline copy's service worker (Phase 4 M12)
+    ("/sw.js", "tools/build_sw.py"),           # the service worker, or its kill switch (Phase 4 M12, M13)
 ]
 STARTUP_TIMEOUT_SECONDS = 15                   # http.server binds in well under a second
 JS_TESTS = "tests/js/**/*.test.js"             # engine unit tests, run with Node (M2)

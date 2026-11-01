@@ -429,3 +429,22 @@ html.projector .stats li { padding: .04rem 0; }
   .table { grid-template-columns: 1fr 1fr; }
   .controls, .verdict { grid-column: 1 / -1; padding-top: 0; }
 }
+
+/* Phase 4 M13: "A new version of Trend Duel is ready — Reload" (js/offline.js).
+   Pinned to the bottom edge so it never covers the cards mid-game. */
+.update-line {
+  position: fixed;
+  left: 50%;
+  bottom: .75rem;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: .45rem .6rem .45rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .25);
+  font-size: .95rem;
+  z-index: 10;
+  max-width: calc(100% - 1.5rem);
+}
+.update-line button { margin-left: .4rem; }

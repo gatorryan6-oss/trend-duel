@@ -610,6 +610,19 @@ def _code_only(text):
     return re.sub(r"(?m)//.*$", "", text)
 
 
+# The kill switch (tools/build_sw.py --kill, Phase 4 M13) replaces sw.js in an
+# emergency. build_sw.py --check accepts it only byte-for-byte; the two checks
+# below that read the real worker's structure SKIP, by name, while it is in
+# place, so pytest's summary shows it.
+KILL_MARKER = "// KILL SWITCH written by tools/build_sw.py --kill"
+
+
+def skip_if_killed(text):
+    if KILL_MARKER in text:
+        pytest.skip("docs/sw.js is the KILL SWITCH (offline copy off). "
+                    "Undo with: python tools/build_sw.py --restore")
+
+
 def test_service_worker_list_is_current():
     """Phase 4 invariant 1: sw.js exists at the docs root and its generated
     block matches the files on disk (tools/build_sw.py --check)."""
@@ -625,6 +638,7 @@ def test_service_worker_lists_exactly_the_site_files():
     with no extras and no duplicates."""
     require(SW_JS, "M12", "The service worker")
     text = SW_JS.read_text(encoding="utf-8")
+    skip_if_killed(text)
     block = re.search(r"const FILES = (\{.*?\});", text, re.S)
     assert block, "sw.js has no FILES block"
     pairs = re.findall(r'"([^"]+)":\s*"([0-9a-f]{64})"', block.group(1))
@@ -641,10 +655,29 @@ def test_service_worker_never_takes_over_on_its_own():
     """Phase 4 invariant 3: skipWaiting() is only ever called in answer to a
     page's message (the player's Reload click), never during install."""
     require(SW_JS, "M12", "The service worker")
-    code = _code_only(SW_JS.read_text(encoding="utf-8"))
+    text = SW_JS.read_text(encoding="utf-8")
+    skip_if_killed(text)
+    code = _code_only(text)
     marker = 'self.addEventListener("message"'
-    before = code.split(marker)[0]
+    assert code.count(marker) == 1, "sw.js must have exactly one message handler."
+    before, handler = code.split(marker)
     assert "skipWaiting" not in before, "sw.js calls skipWaiting outside the message handler."
+    assert re.search(r'type === "skip-waiting"\) self\.skipWaiting\(\)', handler), (
+        "sw.js must call skipWaiting only in answer to a page's skip-waiting message.")
+    assert handler.count("skipWaiting") == 1, "sw.js message handler calls skipWaiting more than once."
+
+
+def test_reload_happens_only_after_the_players_click():
+    """Phase 4 M13: offline.js reloads the page in exactly two places, both
+    behind a Reload click: once the new worker is in charge after the click
+    here (the reloading flag), or from the line offered when another tab
+    switched versions."""
+    require(OFFLINE_JS, "M12", "The offline script")
+    code = _code_only(OFFLINE_JS.read_text(encoding="utf-8"))
+    assert code.count("location.reload()") == 2, "offline.js must reload in exactly two places."
+    assert "reloading = true" in code and code.count("reloading = true") == 1
+    assert re.search(r"if \(reloading\) \{\s*window\.location\.reload\(\);", code)
+    assert "offerReload(function () { window.location.reload(); })" in code
 
 
 def test_every_page_loads_offline_js_after_the_guard():
