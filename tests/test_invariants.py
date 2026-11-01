@@ -597,6 +597,76 @@ def test_every_page_loads_the_startup_guard_first():
             f"{rel(page)} must load js/startup_guard.js (a plain script) before its module.")
 
 
+# ---------------- Phase 4: the offline copy (kickoff §5) ----------------
+
+SW_JS = DOCS / "sw.js"
+OFFLINE_JS = DOCS / "js" / "offline.js"
+
+
+def _code_only(text):
+    """JavaScript with // and /* */ comments removed, so a comment that names
+    a forbidden word (to explain why it is absent) does not trip a check."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    return re.sub(r"(?m)//.*$", "", text)
+
+
+def test_service_worker_list_is_current():
+    """Phase 4 invariant 1: sw.js exists at the docs root and its generated
+    block matches the files on disk (tools/build_sw.py --check)."""
+    import subprocess
+    require(SW_JS, "M12", "The service worker")
+    out = subprocess.run([sys.executable, str(ROOT / "tools" / "build_sw.py"), "--check"],
+                         capture_output=True, text=True, timeout=60)
+    assert out.returncode == 0, out.stderr or out.stdout
+
+
+def test_service_worker_lists_exactly_the_site_files():
+    """Phase 4 invariant 2: FILES names every file under docs/ except sw.js,
+    with no extras and no duplicates."""
+    require(SW_JS, "M12", "The service worker")
+    text = SW_JS.read_text(encoding="utf-8")
+    block = re.search(r"const FILES = (\{.*?\});", text, re.S)
+    assert block, "sw.js has no FILES block"
+    pairs = re.findall(r'"([^"]+)":\s*"([0-9a-f]{64})"', block.group(1))
+    listed = [path for path, _ in pairs]
+    assert len(listed) == len(set(listed)), "sw.js FILES has duplicates"
+    on_disk = sorted(q.relative_to(DOCS).as_posix() for q in DOCS.rglob("*")
+                     if q.is_file() and q != SW_JS)
+    assert sorted(listed) == on_disk, (
+        f"sw.js FILES and docs/ disagree.\n  missing: {sorted(set(on_disk) - set(listed))}\n"
+        f"  extra:   {sorted(set(listed) - set(on_disk))}")
+
+
+def test_service_worker_never_takes_over_on_its_own():
+    """Phase 4 invariant 3: skipWaiting() is only ever called in answer to a
+    page's message (the player's Reload click), never during install."""
+    require(SW_JS, "M12", "The service worker")
+    code = _code_only(SW_JS.read_text(encoding="utf-8"))
+    marker = 'self.addEventListener("message"'
+    before = code.split(marker)[0]
+    assert "skipWaiting" not in before, "sw.js calls skipWaiting outside the message handler."
+
+
+def test_every_page_loads_offline_js_after_the_guard():
+    """Phase 4 invariant 4."""
+    require(OFFLINE_JS, "M12", "The offline script")
+    for page in sorted(DOCS.glob("*.html")):
+        text = page.read_text(encoding="utf-8")
+        if 'type="module"' not in text:
+            continue
+        guard = text.find('<script src="js/startup_guard.js"></script>')
+        offline = text.find('<script src="js/offline.js" defer></script>')
+        assert 0 <= guard < offline, f"{rel(page)} must load js/offline.js after js/startup_guard.js."
+
+
+def test_offline_code_never_touches_local_storage():
+    """Phase 4 invariant 5: settings and mastery are not the worker's business."""
+    for path in (SW_JS, OFFLINE_JS):
+        require(path, "M12", rel(path))
+        assert "localStorage" not in _code_only(path.read_text(encoding="utf-8")), (
+            f"{rel(path)} must not reference localStorage.")
+
+
 TEACHER_JS = DOCS / "js" / "teacher.js"
 TEACHER_HTML = DOCS / "teacher.html"
 

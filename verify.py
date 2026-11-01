@@ -75,10 +75,22 @@ EXTRA_PAGES = [                                # (path, must-contain) — more p
     ("/gallery.html", "Card gallery"),         # the deck gallery (M1)
     ("/about.html", "About the data"),         # sources and standards (M5)
     ("/teacher.html", "Build table"),          # the class results table (Phase 2 M7)
+    ("/sw.js", "BEGIN GENERATED"),             # the offline copy's service worker (Phase 4 M12)
 ]
 STARTUP_TIMEOUT_SECONDS = 15                   # http.server binds in well under a second
 JS_TESTS = "tests/js/**/*.test.js"             # engine unit tests, run with Node (M2)
 # ------------------------------------------------------------
+
+
+def run_sw_check():
+    """The service worker's file list must match docs/ (Phase 4): a stale list
+    would make every device refuse the update. Returns a list of problems."""
+    out = subprocess.run([sys.executable, os.path.join(_HERE, "tools", "build_sw.py"), "--check"],
+                         cwd=_HERE, capture_output=True, text=True, timeout=60)
+    if out.returncode != 0:
+        return [(out.stderr or out.stdout).strip()]
+    print(out.stdout.strip())
+    return []
 
 
 def run_js_tests():
@@ -252,6 +264,7 @@ def main(argv=None):
             print(note)
         if glob.glob(os.path.join(_HERE, JS_TESTS), recursive=True):
             problems.extend(run_js_tests())
+        problems.extend(run_sw_check())
         if problems:
             print("FAIL: " + " | ".join(problems), file=sys.stderr)
             return 2

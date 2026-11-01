@@ -32,11 +32,12 @@ Entry format:
   https://gatorryan6-oss.github.io/trend-duel/ (GitHub Pages, main /docs).
   **Chromebook result: the Pages URL loads and plays on a school Chromebook
   over the school network** (reported by the human 2026-10-21).
-- **Next up:** Phase 4 kickoff DRAFTED, awaiting the human's approval —
-  `trend_duel_phase4_kickoff.md` (2026-10-31): offline play and safe updates
-  only (the human chose that scope), milestones M12-M13. Measured facts
-  (Pages `Cache-Control: max-age=600`, MDN service-worker pages) are in its
-  header. Nothing built yet. The other candidates moved to Phase 5. Candidates
+- **PHASE 4 IN PROGRESS** — spec `trend_duel_phase4_kickoff.md` (offline
+  play and safe updates), approved by the human 2026-11-01. M12 (the offline
+  copy) shipped 2026-11-01.
+- **Next up:** M13 (update line + Reload, offline wording, update check on
+  load, tools/check_live.py, build_sw.py --kill and its CLAUDE.md procedure).
+  Phase 5 candidates
   (spec §6): the 4d block, an offline service worker with a versioned cache
   (also the real fix for the deploy-cache window), sound/animation polish,
   an optional Flask score server.
@@ -54,7 +55,7 @@ Entry format:
   **v24.16.0** is installed; JS tests run with `npm test` (verify.py runs
   them too). `docs/selftest.html` deferred — only needed if Node disappears.
 - **Suite:** `python verify.py` PASSES (index + gallery + three data files
-  parsed). pytest: 37 passed, 0 skipped. `npm test`: 78 tests pass;
+  parsed). pytest: 42 passed, 0 skipped. `npm test`: 83 tests pass;
   verify.py runs them, parses all three data files, and smoke-tests
   gallery.html, about.html and teacher.html.
 - **Open bugs:** none.
@@ -68,6 +69,49 @@ Entry format:
 ---
 
 ## Milestones
+
+## 2026-11-01 — M12: The offline copy (Phase 4)
+- Shipped: tools/build_sw.py (+ --check) writes VERSION and FILES (24 files,
+  SHA-256 of CRLF->LF bytes) into a generated block in docs/sw.js. sw.js:
+  install fetches every file with cache "reload", checks every hash, stores
+  only if all match (else the install fails and nothing is kept); activate
+  deletes other trend-duel-* caches and claims open pages; fetch answers
+  same-origin GETs in scope from the versioned cache (folder -> index.html);
+  a "version" message gets the version back. js/offline.js (plain script,
+  every page, after startup_guard.js) registers sw.js and fills the version
+  line on the title screen and About ("Version 40eeeb7 · saved for
+  offline"). verify.py fetches /sw.js and runs build_sw.py --check.
+  Browser-checked: worker active, 24 files cached; with the local server
+  STOPPED, the title page reloaded, an Honors game dealt 26/26 and played,
+  and gallery/About (52 ions)/teacher/data all loaded from the copy. Test
+  browser's worker unregistered afterwards. verify.py PASS; pytest 42;
+  npm test 83 (tests/js/sw.test.js runs the real sw.js in a Node vm with a
+  fake cache and network: JS hash == Python hash on every file; one stale or
+  missing file stores nothing).
+- Deferred: update line / Reload, offline wording, check_live.py, kill
+  switch — M13 per spec.
+- Open bugs: none. Known until M13: a new version waits until every tab of
+  the site is closed (no Reload line yet); and if a deploy ever left sw.js
+  stale, devices would keep the old copy without saying so (the invariant
+  makes that a test failure here; check_live.py at M13 makes it visible).
+- Decisions: (1) The page learns the version by asking its controlling
+  worker (Client.postMessage reply, received on navigator.serviceWorker;
+  startMessages() called where present); no controller = "Not saved for
+  offline on this device" (also what a Shift+reload shows, since a force
+  refresh bypasses the worker). (2) Files are verified first and only then
+  written, so a failed install never leaves a partial cache. (3) Invariant
+  checks for skipWaiting and localStorage strip comments first (the comments
+  name both on purpose).
+- MDN pages consulted this milestone (spec §0): ServiceWorkerContainer/register,
+  ServiceWorkerRegistration/updateViaCache, Request/cache, Cache/addAll,
+  Security/Secure_Contexts, ServiceWorkerGlobalScope/skipWaiting,
+  FetchEvent/respondWith, ExtendableEvent/waitUntil,
+  ServiceWorkerGlobalScope/install_event, CacheStorage, Cache/put, Cache/match,
+  Response/clone, SubtleCrypto/digest, Clients/claim,
+  ServiceWorkerContainer/controller, ServiceWorkerGlobalScope/message_event
+  (all under developer.mozilla.org/en-US/docs/Web/...). Not read: the
+  page-side ServiceWorkerContainer message event and startMessages(); their
+  behaviour was confirmed by the browser test instead.
 
 ## 2026-10-31 — M11: The Honors deck in play (Phase 3) — PHASE 3 COMPLETE
 - Shipped: settings `deck` ("main" | "main+3d"; DEFAULTS and old saves load

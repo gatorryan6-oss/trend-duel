@@ -110,6 +110,8 @@ docs/                      THE SITE (GitHub Pages serves this folder)
   about.html  gallery.html  sources/standards page; the deck gallery (CP/Honors filter)
   js/about.js              fills About's ion table from elements.json (Phase 3 M11)
   js/startup_guard.js      plain script: banner if a module fails to load (Phase 3 M11)
+  sw.js                    service worker: hash-checked offline copy; GENERATED block (Phase 4 M12)
+  js/offline.js            plain script: registers sw.js, fills the version line (Phase 4 M12)
   teacher.html js/teacher.js  paste TD1 lines -> class table; ONE parser (results.js) (Phase 2 M7)
   js/cards.js  js/data.js  js/format.js   card renderer, loud data loader, value formatting
   data/elements.json       42 card records (M1, generated)
@@ -121,6 +123,7 @@ tools/build_elements.py    the data build (M1) — the only thing that imports m
 tools/build_exceptions.mjs computes exceptions.json from the game's own predictor (M3)
 tools/exception_reasons.json  drafted reasons: one per family + per-pair overrides (M3, M10)
 tools/review_family.py     THE TEACHER'S tool: list families, approve one (sets reviewed), --report
+tools/build_sw.py          writes VERSION + FILES (path -> SHA-256) into docs/sw.js; --check (M12)
 tools/requirements.txt     tooling deps, version-pinned
 tests/test_invariants.py   kickoff §2/§5 as checks
 tests/js/                  engine unit tests, `npm test` (M2)
@@ -152,6 +155,14 @@ trend_duel_v1_kickoff.md   the spec
   works.) If Node ever disappears, verify.py says so by name.
 - `python tools/build_elements.py` — regenerate the data (needs
   `pip install -r tools/requirements.txt`).
+- `python tools/build_sw.py` — **rerun after ANY change under `docs/`**, or
+  the invariants fail (`--check`) and every device would refuse the update.
+- **Developing with the service worker (Phase 4):** a browser that has
+  visited localhost:5093 serves the saved copy, and a new version waits until
+  every tab of the site is closed (M13 adds a Reload line). To see edits at
+  once, close all the site's tabs and reopen, or unregister the worker in the
+  browser's dev tools (Application > Service workers). verify.py is not
+  affected: it fetches over plain HTTP.
 
 Port 5093 is this project's dedicated port. Taken by other projects on this
 machine (read from their verify.py files 2026-10-14): 5000 (FieldStop), 5040
