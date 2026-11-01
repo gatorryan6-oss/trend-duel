@@ -40,6 +40,10 @@ Entry format:
   laptop (Claude pushes a small visible change; he runs check_live.py, sees
   the update line, clicks Reload), then a school Chromebook with Wi-Fi off.
   Log which result the Chromebook gave ("saved for offline" or "not saved").
+  Laptop half started 2026-11-01: with the live game open on the human's
+  laptop, Claude pushed b63f78e (About explains the update bar; version
+  85e87f3); check_live.py reported 4d1066f until 08:32:50, then "live site
+  is version 85e87f3, all 24 files match". The human's result: pending.
   STOP after Phase 4. Phase 5 candidates (spec §6): the 4d block,
   sound/animation polish, an optional Flask score server.
 - **Still the teacher's:** exceptions.json has 209 entries in 29 families,
